@@ -3,7 +3,13 @@
 	window.onload() function and the initialization of global variables.
 */
 
-window.onload() {
+var sM = new SceneManager();
+sM.addScene(new StartScene());
+sM.addScene(new OptionsScene());
+sM.addScene(new ControlChangeScene());
+sM.changeScene("start");
+
+window.onload = function() {
 	canvas = document.getElementById("canvas");	
 	ctx = canvas.getContext("2d");
 	ctx.imageSmoothingEnabled = false;
@@ -15,4 +21,5 @@ function main() {
 	//the screen size.
 	canvas.width = innerWidth;
 	canvas.height = innerHeight;
+	sM.update();
 }
