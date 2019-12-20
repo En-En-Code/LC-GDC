@@ -29,6 +29,8 @@ function main() {
 		canvas.height = innerHeight;
 		sM.updateYScaling();
 	}
-	
+		
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	sM.update();
 }
