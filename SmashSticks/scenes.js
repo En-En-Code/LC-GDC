@@ -181,4 +181,23 @@ class SceneChangeButton extends Button {
 			this.manager.changeScene(this.redirect);
 		}
 	}
+class drawRect {
+	constructor(x, y, w, h, c){
+		this.x = x; //x loc - starts at left
+		this.y = y; //y loc - starts at left
+		this.w = w; //width
+		this.h = h; //height
+		this.c = c; //color
+	}
+	update() {
+		//idk what to put here, julian just made it so im not sure
+	}
+	render(){
+		ctx.rect(x, y, w, h);
+		ctx.fillStyle = c;  //sets color to c
+		ctx.fill();
+	}
+	
+	
+}
 }
