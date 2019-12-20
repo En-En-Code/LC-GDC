@@ -32,6 +32,12 @@ class SceneManager {
 	update() {
 		this.scenes.get(this.currScene).update();
 	}
+	updateXScaling() {
+		this.scenes.get(this.currScene).updateXScaling();
+	}
+	updateYScaling() {
+		this.scenes.get(this.currScene).updateYScaling();
+	}
 }
 
 class Scene {
@@ -40,13 +46,28 @@ class Scene {
 		this.objs = [];
 	}
 	
-	load() {}
+	load() {
+		for (var x = 0; x < this.objs.length; x++) {
+			this.objs[x].updateXScaling();
+			this.objs[x].updateYScaling();
+		}
+	}
 	unload() { 	
 		for (var x = 0; x < this.objs.length; x++) {
 			this.objs[x].unload();
 		}
 	}
 	update() {}
+	updateXScaling() {
+		for (var x = 0; x < this.objs.length; x++) {
+			this.objs[x].updateXScaling();
+		}
+	}
+	updateYScaling() {
+		for (var x = 0; x < this.objs.length; x++) {
+			this.objs[x].updateYScaling();
+		}	
+	}
 	render() {}
 }
 
@@ -139,6 +160,12 @@ class FightScene extends Scene {
 	constructor() {
 		super();
 		this.name = "ingame";
+		//this.objs.push(new Character("#ab1ba3"));
+	}
+	update() {
+		for (var x = 0; x < this.objs.length; x++) {
+			this.objs[x].render();
+		}
 	}
 }
 
@@ -148,24 +175,32 @@ class FightScene extends Scene {
 class Button  {
 	/** A box with text that can be selected (how?) for an effect. **/
 	constructor(x, y, w, h, t) {
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.h = h;
+		this.xFunct = x;
+		this.yFunct = y;
+		this.wFunct = w;
+		this.hFunct = h;
 		this.txt = t;
 		this.selected = false;
 	}
 	update() {}
+	updateXScaling() {
+		this.x = this.xFunct();
+		this.w = this.wFunct();
+	}
+	updateYScaling() {
+		this.y = this.yFunct();
+		this.h = this.hFunct();
+	}
 	unload() {
 		this.selected = false;
 	}
 	render() {
 		ctx.fillStyle = "#555555";
-		ctx.fillRect(mid2Edge(this.x(), this.w()), mid2Edge(this.y(), this.h()), this.w(), this.h());
+		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
 		ctx.textAlign = 'center';
-		ctx.font = (this.w() / this.txt.length) + "px Comic Sans MS";
+		ctx.font = (this.w / this.txt.length) + "px Comic Sans MS";
 		ctx.fillStyle = "#000000";
-		ctx.fillText(this.txt, this.x(), this.y());
+		ctx.fillText(this.txt, this.x, this.y, this.w);
 	}
 }
 
@@ -181,23 +216,4 @@ class SceneChangeButton extends Button {
 			this.manager.changeScene(this.redirect);
 		}
 	}
-function drawRect {    
-	constructor(x, y, w, h, c){
-		this.x = x; //x loc - starts at left
-		this.y = y; //y loc - starts at left
-		this.w = w; //width
-		this.h = h; //height
-		this.c = c; //color
-	}
-	update() {
-		//idk what to put here, julian just made it so im not sure
-	}
-	render(){
-		ctx.rect(x, y, w, h);
-		ctx.fillStyle = c;  //sets color to c
-		ctx.fill();
-	}
-	
-	
-}
 }
