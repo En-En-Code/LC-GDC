@@ -71,6 +71,52 @@ class SFXManager {
 	}
 }
 
+////////////
+// INPUTS //
+////////////
+Mouse = function() {
+	var mouse = {};
+	mouse.x = 0;
+	mouse.y = 0;
+	
+	window.addEventListener('mousemove', move);	
+	function move(e) {
+		mouse.x = e.clientX;
+		mouse.y = e.clientY;
+	}
+	window.addEventListener('click', click);
+	function click(e) {
+
+	}
+	return mouse;
+}
+
+/////////////////
+// RANDOMIZERS //
+/////////////////
+function randIntInRange(min, max) {
+	///returns a random integer value between min and max inclusively.
+	if (min > max) {
+		var temp = min;
+		min = max;
+		max = temp;
+	}
+	return Math.round(Math.random() * (max - min)) + min;
+}
+function randDoubleInRange(min, max) {
+	///returns a random double values between min and max inclusively.
+	if (min > max) {
+		var temp = min;
+		min = max;
+		max = temp;
+	}
+	return Math.random() * (max - min) + min;
+}
+function randFromList(a) { 
+	///picks a random item in a list by picking one of its valid indexes randomly
+	return a[randIntInRange(0, a.length - 1)];
+}
+
 ///////////////////
 // MISCELLANEOUS //
 ///////////////////
