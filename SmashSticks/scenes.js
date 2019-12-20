@@ -181,7 +181,7 @@ class SceneChangeButton extends Button {
 			this.manager.changeScene(this.redirect);
 		}
 	}
-class drawRect {
+class drawRect {      //should be a function
 	constructor(x, y, w, h, c){
 		this.x = x; //x loc - starts at left
 		this.y = y; //y loc - starts at left
