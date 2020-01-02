@@ -46,6 +46,36 @@ function pointRectCollision(p, b) {
 	return 	p.x >= mid2Edge(b.x, b.w) && p.x <= mid2Edge(b.x, -b.w) &&
 			p.y >= mid2Edge(b.y, b.h) && p.y <= mid2Edge(b.y, -b.h);
 }
+function segmentSegmentCollision(l1, l2) {
+	///@return: True if two line segments, l1 & l2, both arrays (length==2) containing
+	///objects with numeric x and y, intersect within the endpoints, False otherwise.
+	m1 = (l1[1].y - l1[0].y) / (l1[1].x - l1[0].x);
+	m2 = (l2[1].y - l2[0].y) / (l2[1].x - l2[0].x);
+	if (m1 != Infinity && m2 != Infinity) {
+		if (m1 == m2) {
+			//the lines are parallel
+			return l2[0].y - l1[0].y == m1 * (l2[0].x - l1[0].x) && 
+				(Math.min(l1[0].x, l1[1].x) <= l2[0].x && l2[0].x <= Math.max(l1[0].x, l1[1].x) ||
+				Math.min(l1[0].x, l1[1].x) <= l2[1].x && l2[1].x <= Math.max(l1[0].x, l1[1].x));
+		} else {
+			isectX = (l2[0].y - l1[0].y + m1 * l1[0].x + m2 * l2[0].x) / (m1 - m2);
+			return Math.min(l1[0].x, l1[1].x) <= isectX && isectX <= Math.max(l1[0].x, l1[1].x) &&
+					Math.min(l2[0].x, l2[1].x) <= isectX && isectX <= Math.max(l2[0].x, l2[1].x);
+		} 
+	} else if (m1 == m2) { //both lines are vertical
+		return l1[0].x == l2[0].x &&
+			Math.min(l1[0].y, l1[1].y) <= Math.max(l2[0].y, l2[1].y) && 
+			Math.min(l2[0].y, l2[1].y) <= Math.max(l1[0].y, l1[1].y);
+	} else if (m1 == Infinity) {
+		return Math.min(l2[0].x, l2[1].x) <= l1[0].x && l1[0].x <= Math.max(l2[0].x, l2[1].x) &&
+			Math.min(l1[0].y, l1[1].y) <= Math.max(l2[0].y, l2[1].y) && 
+			Math.min(l2[0].y, l2[1].y) <= Math.max(l1[0].y, l1[1].y);
+	} else {
+		return Math.min(l1[0].x, l1[1].x) <= l2[0].x && l2[0].x <= Math.max(l1[0].x, l1[1].x) &&
+			Math.min(l2[0].y, l2[1].y) <= Math.max(l1[0].y, l1[1].y) && 
+			Math.min(l1[0].y, l1[1].y) <= Math.max(l2[0].y, l2[1].y);
+	}
+	return false;
 
 //////////////////////
 // AUDIO MANAGEMENT //
@@ -115,6 +145,13 @@ function randDoubleInRange(min, max) {
 function randFromList(a) { 
 	///picks a random item in a list by picking one of its valid indexes randomly
 	return a[randIntInRange(0, a.length - 1)];
+}
+
+////////////////////
+// MATH EQUATIONS //
+////////////////////
+function distance(a, b) {
+	return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 }
 
 ///////////////////
