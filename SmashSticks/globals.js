@@ -46,36 +46,55 @@ function pointRectCollision(p, b) {
 	return 	p.x >= mid2Edge(b.x, b.w) && p.x <= mid2Edge(b.x, -b.w) &&
 			p.y >= mid2Edge(b.y, b.h) && p.y <= mid2Edge(b.y, -b.h);
 }
+function pointSegmentCollision(p, l) {
+	///@return True if a point p is on the line segment l, False otherwise
+	m = (l[1].y - l[0].y) / (l[1].x - l[0].x);
+	return p.y - l[0].y == m * (p.x - l[0].x);
+}
 function segmentSegmentCollision(l1, l2) {
-	///@return: True if two line segments, l1 & l2, both arrays (length==2) containing
+	///@return True if two line segments, l1 & l2, both arrays (length==2) containing
 	///objects with numeric x and y, intersect within the endpoints, False otherwise.
-	m1 = (l1[1].y - l1[0].y) / (l1[1].x - l1[0].x);
-	m2 = (l2[1].y - l2[0].y) / (l2[1].x - l2[0].x);
-	if (m1 != Infinity && m2 != Infinity) {
-		if (m1 == m2) {
-			//the lines are parallel
-			return l2[0].y - l1[0].y == m1 * (l2[0].x - l1[0].x) && 
-				(Math.min(l1[0].x, l1[1].x) <= l2[0].x && l2[0].x <= Math.max(l1[0].x, l1[1].x) ||
-				Math.min(l1[0].x, l1[1].x) <= l2[1].x && l2[1].x <= Math.max(l1[0].x, l1[1].x));
-		} else {
-			isectX = (l2[0].y - l1[0].y + m1 * l1[0].x + m2 * l2[0].x) / (m1 - m2);
-			return Math.min(l1[0].x, l1[1].x) <= isectX && isectX <= Math.max(l1[0].x, l1[1].x) &&
-					Math.min(l2[0].x, l2[1].x) <= isectX && isectX <= Math.max(l2[0].x, l2[1].x);
-		} 
-	} else if (m1 == m2) { //both lines are vertical
-		return l1[0].x == l2[0].x &&
-			Math.min(l1[0].y, l1[1].y) <= Math.max(l2[0].y, l2[1].y) && 
-			Math.min(l2[0].y, l2[1].y) <= Math.max(l1[0].y, l1[1].y);
-	} else if (m1 == Infinity) {
-		return Math.min(l2[0].x, l2[1].x) <= l1[0].x && l1[0].x <= Math.max(l2[0].x, l2[1].x) &&
-			Math.min(l1[0].y, l1[1].y) <= Math.max(l2[0].y, l2[1].y) && 
-			Math.min(l2[0].y, l2[1].y) <= Math.max(l1[0].y, l1[1].y);
-	} else {
-		return Math.min(l1[0].x, l1[1].x) <= l2[0].x && l2[0].x <= Math.max(l1[0].x, l1[1].x) &&
-			Math.min(l2[0].y, l2[1].y) <= Math.max(l1[0].y, l1[1].y) && 
-			Math.min(l1[0].y, l1[1].y) <= Math.max(l2[0].y, l2[1].y);
+	//check for line segments that start and end at the same places, i.e. points
+	if (l1[0].x == l1[1].x && l1[0].y == l1[1].y) {
+		if (l2[0].x == l2[1].x && l2[0].y == l2[1].y) {
+			return l1[0].x == l2[0].x && l1[0].y == l2[0].y;
+		}
+		else {
+			return pointSegmentCollision(l1[0], l2);
+		}
+	} else if (l2[0].x == l2[1].x && l2[0].y == l2[1].y) {
+		return pointSegmentCollision(l2[0], l1);
+	}
+	else {	//handles two "true" line segments
+		m1 = (l1[1].y - l1[0].y) / (l1[1].x - l1[0].x);
+		m2 = (l2[1].y - l2[0].y) / (l2[1].x - l2[0].x);
+		if (m1 != Infinity && m2 != Infinity) {
+			if (m1 == m2) {
+				//the lines are parallel
+				return l2[0].y - l1[0].y == m1 * (l2[0].x - l1[0].x) && 
+					(Math.min(l1[0].x, l1[1].x) <= l2[0].x && l2[0].x <= Math.max(l1[0].x, l1[1].x) ||
+					Math.min(l1[0].x, l1[1].x) <= l2[1].x && l2[1].x <= Math.max(l1[0].x, l1[1].x));
+			} else {
+				isectX = (l2[0].y - l1[0].y + m1 * l1[0].x + m2 * l2[0].x) / (m1 - m2);
+				return Math.min(l1[0].x, l1[1].x) <= isectX && isectX <= Math.max(l1[0].x, l1[1].x) &&
+						Math.min(l2[0].x, l2[1].x) <= isectX && isectX <= Math.max(l2[0].x, l2[1].x);
+			} 
+		} else if (m1 == m2) { //both lines are vertical
+			return l1[0].x == l2[0].x &&
+				Math.min(l1[0].y, l1[1].y) <= Math.max(l2[0].y, l2[1].y) && 
+				Math.min(l2[0].y, l2[1].y) <= Math.max(l1[0].y, l1[1].y);
+		} else if (m1 == Infinity) {
+			return Math.min(l2[0].x, l2[1].x) <= l1[0].x && l1[0].x <= Math.max(l2[0].x, l2[1].x) &&
+				Math.min(l1[0].y, l1[1].y) <= Math.max(l2[0].y, l2[1].y) && 
+				Math.min(l2[0].y, l2[1].y) <= Math.max(l1[0].y, l1[1].y);
+		} else if (m2 == Infinity) {
+			return Math.min(l1[0].x, l1[1].x) <= l2[0].x && l2[0].x <= Math.max(l1[0].x, l1[1].x) &&
+				Math.min(l2[0].y, l2[1].y) <= Math.max(l1[0].y, l1[1].y) && 
+				Math.min(l1[0].y, l1[1].y) <= Math.max(l2[0].y, l2[1].y);
+		}
 	}
 	return false;
+}
 
 //////////////////////
 // AUDIO MANAGEMENT //
