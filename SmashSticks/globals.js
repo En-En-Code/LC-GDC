@@ -8,7 +8,7 @@
 // COLLISION //
 ///////////////
 function collisionDirect(t1, t2) {
-	///@return: True if the t1 & t2 are overlapping, False otherwise
+	///@return True if the t1 & t2 are overlapping, False otherwise
 	//It uses the existence (or non-existence) of certain variables to determines
 	//which collision to use, and returns that collision function's return value.
 	///Note: we may need to add more collision functions over time.
@@ -35,14 +35,14 @@ function collisionDirect(t1, t2) {
 }
 
 function rectRectCollision(b1, b2) {
-	///@return: True if the two rectangles, b1 & b2, are overlapping, False otherwise.
+	///@return True if the two rectangles, b1 & b2, are overlapping, False otherwise.
 	return 	mid2Edge(b1.x, b1.w) <= mid2Edge(b2.x, -b2.w) &&
 			mid2Edge(b1.x, -b1.w) >= mid2Edge(b2.x, b2.w) &&
 			mid2Edge(b1.y, b1.h) <= mid2Edge(b2.y, -b2.h) &&
 			mid2Edge(b1.y, -b1.h) >= mid2Edge(b2.y, b2.h);
 }
 function pointRectCollision(p, b) {
-	///@return: True if the point p is inside of rectangle b, False otherwise.
+	///@return True if the point p is inside of rectangle b, False otherwise.
 	return 	p.x >= mid2Edge(b.x, b.w) && p.x <= mid2Edge(b.x, -b.w) &&
 			p.y >= mid2Edge(b.y, b.h) && p.y <= mid2Edge(b.y, -b.h);
 }
@@ -127,24 +127,159 @@ Mouse = function() {
 	var mouse = {};
 	mouse.x = 0;
 	mouse.y = 0;
+	mouse.cursor = new Cursor();
+	
+	mouse.update = function() {
+		mouse.cursor.constUpdate(mouse.x, mouse.y);
+	}
 	
 	window.addEventListener('mousemove', move);	
 	function move(e) {
 		mouse.x = e.clientX;
 		mouse.y = e.clientY;
 	}
+	
 	window.addEventListener('click', click);
 	function click(e) {
-
+		
 	}
+	
+	canvas.requestPointerLock = canvas.requestPointerLock ||
+                            canvas.mozRequestPointerLock;
+	window.exitPointerLock = window.exitPointerLock ||
+                           window.mozExitPointerLock;
+	if ("onpointerlockchange" in window) {
+		window.addEventListener('pointerlockchange', lockChangeAlert);
+	} else if ("onmozpointerlockchange" in window) {
+		window.addEventListener('mozpointerlockchange', lockChangeAlert);
+	}
+	function lockChangeAlert() {
+		if (window.pointerLockElement === canvas ||
+			window.mozPointerLockElement === canvas) {
+			
+		} else {
+			
+		}
+	}
+	
 	return mouse;
+}
+
+GamepadManager = function() {
+	/** A function designed to handle gamepads (cause Chrome sucks at it). **/
+	var gM = {};
+	gM.gamepads = [];
+	
+	if ("GamepadEvent" in window) {
+		window.addEventListener('gamepadconnected', addGamepad);
+		window.addEventListener('gamepaddisconnected', removeGamepad);
+	} else if ("WebkitGamepadEvent" in window) {
+		window.addEventListener('webkitgamepadconnected', addGamepad);
+		window.addEventListener('webkitgamepaddisconnected', removeGamepad);
+	}
+	function addGamepad(e) {
+		var i = e.gamepad.index;
+		if (i < gM.gamepads.length) {
+			gM.gamepads[i] = e.gamepad;
+		} else {
+			gM.gamepads.push(e.gamepad);
+		}
+		gM.gamepads[i].cursor = new Cursor();
+	}
+	function removeGamepad(e) {
+		for (var c = 0; c < cursorArray.length; c++) {
+			if (isEqual(cursorArray[c], e.gamepad.cursor)) {			
+				delete cursorArray[c];
+			}
+		}
+	}
+	
+	gM.update = function() {
+		var cursors = [];
+		for (g of gM.gamepads) {
+			if (g != undefined) {
+				cursors.push(g.cursor);
+			}
+		}
+		var temppads = navigator.getGamepads?navigator.getGamepads(): 
+			(navigator.webkitGetGamepads?navigator.webkitGetGamepads():[]);
+		for (var i = 0; i < temppads.length; i++) {
+			gM.gamepads[i] = temppads[i];
+		}
+		
+		for (g of gM.gamepads) {
+			if (g) {
+				if (cursors[g.index] != undefined) {
+					g.cursor = cursors[g.index];
+				} else {
+					g.cursor = new Cursor();
+				}
+				g.cursor.delUpdate(g.axes[0] * 10, g.axes[1] * 10);
+			}
+		}
+	}
+	
+	return gM;
+}
+
+var cursorArray = [];
+var pointerColorArray = ["red", "blue", "lime", "yellow"];
+class Cursor {
+	/** A pointer for selection (either for mouse or gamepad). **/
+	constructor() {
+		this.x = null;
+		this.y = null;
+		this.w = 10;
+		this.h = 10;
+		this.visible = true;
+		for (var x = 0; x < cursorArray.length; x++) {
+			if (cursorArray[x] === undefined) {
+				this.index = x;
+				cursorArray[x] = this;
+				break;
+			}
+		}
+		if (this.index == undefined) {
+			this.index = cursorArray.push(this) - 1;
+		}
+		if (this.index <= 3) {
+			this.color = pointerColorArray[this.index];
+		} else {
+			this.color = "black";
+		}
+	}
+	constUpdate(x, y) {
+		this.x = x;
+		this.y = y;
+		this.update();
+	}
+	delUpdate(x, y) {
+		if (this.x == null) {this.x = innerWidth/2;}
+		if (this.y == null) {this.y = innerHeight/2;}
+		this.x += x;
+		this.y += y;
+		this.update();
+	}
+	update() {
+		if (this.visible) {
+			this.render();
+		}
+	}
+	render() {
+		ctx.fillStyle = this.color;
+		ctx.beginPath();
+		ctx.moveTo(this.x, this.y);
+		ctx.lineTo(this.x + this.w, this.y + this.h);
+		ctx.lineTo(this.x, this.y + 1.5 * this.h);
+		ctx.fill();
+	}
 }
 
 /////////////////
 // RANDOMIZERS //
 /////////////////
 function randIntInRange(min, max) {
-	///returns a random integer value between min and max inclusively.
+	///@return a random integer value between min and max inclusively.
 	if (min > max) {
 		var temp = min;
 		min = max;
@@ -153,7 +288,7 @@ function randIntInRange(min, max) {
 	return Math.round(Math.random() * (max - min)) + min;
 }
 function randDoubleInRange(min, max) {
-	///returns a random double values between min and max inclusively.
+	///@return a random double values between min and max inclusively.
 	if (min > max) {
 		var temp = min;
 		min = max;
@@ -162,7 +297,7 @@ function randDoubleInRange(min, max) {
 	return Math.random() * (max - min) + min;
 }
 function randFromList(a) { 
-	///picks a random item in a list by picking one of its valid indexes randomly
+	///@return a random item in a list by picking one of its valid indexes randomly
 	return a[randIntInRange(0, a.length - 1)];
 }
 
@@ -177,8 +312,24 @@ function distance(a, b) {
 // MISCELLANEOUS //
 ///////////////////
 function mid2Edge(c, l) {
-	///@return: Assume a vertical or horizontal line with a center at c and
+	///@return Assume a vertical or horizontal line with a center at c and
 	///length l, return the top-leftmost point
 	///Note: If l < 0 it returns the bottom-rightmost point
 	return c - l/2;
+}
+function isEqual(a, b) {
+	///@return True if a and b have equal values for all properties, False otherwise
+	var aProps = Object.getOwnPropertyNames(a);
+    var bProps = Object.getOwnPropertyNames(b);
+	if (aProps.length != bProps.length) {
+        return false;
+    }
+
+    for (var i = 0; i < aProps.length; i++) {
+        var propName = aProps[i];
+        if (a[propName] !== b[propName]) {
+            return false;
+        }
+    }
+    return true;
 }
