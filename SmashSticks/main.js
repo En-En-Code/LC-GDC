@@ -10,11 +10,14 @@ sM.addScene(new ControlChangeScene());
 sM.addScene(new FightScene());
 sM.changeScene("start");
 
+var gM = new GamepadManager();
+
 window.onload = function() {
 	canvas = document.getElementById("canvas");	
 	ctx = canvas.getContext("2d");
 	ctx.imageSmoothingEnabled = false;
 	mouse = new Mouse();
+	document.body.style.cursor = 'none';
 	setInterval(main, 100/6);
 }
 
@@ -29,8 +32,11 @@ function main() {
 		canvas.height = innerHeight;
 		sM.updateYScaling();
 	}
-		
+	
 	ctx.fillStyle = "#FFFFFF";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	sM.update();
+	
+	mouse.update();
+	gM.update();
 }
