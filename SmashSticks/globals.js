@@ -197,8 +197,10 @@ GamepadManager = function() {
 	gM.update = function() {
 		var cursors = [];
 		for (g of gM.gamepads) {
-			if (g != undefined) {
+			if (g) {
 				cursors.push(g.cursor);
+			} else {
+				cursors.push(undefined);
 			}
 		}
 		var temppads = navigator.getGamepads?navigator.getGamepads(): 
@@ -214,7 +216,25 @@ GamepadManager = function() {
 				} else {
 					g.cursor = new Cursor();
 				}
-				g.cursor.delUpdate(g.axes[0] * 10, g.axes[1] * 10);
+				g.update = function() {
+					//remove dead zones and standardized distances
+					this.newAxes = this.axes;
+					for (a of this.newAxes) {
+						if (Math.abs(a) <= 0.1) {
+							a = 0;
+						}
+					}
+					for (var a = 0; a < this.newAxes.length; a += 2) {
+						var v = distance(this.newAxes[a], this.newAxes[a+1]);
+						if (v > 1) {
+							this.newAxes[a] /= v;
+							this.newAxes[a+1] /= v;
+						}
+					}
+					//cursor movement
+					this.cursor.delUpdate(this.newAxes[0] * 10, this.newAxes[1] * 10);
+				}
+				g.update();
 			}
 		}
 	}
@@ -258,6 +278,10 @@ class Cursor {
 		if (this.y == null) {this.y = innerHeight/2;}
 		this.x += x;
 		this.y += y;
+		if (this.x < 0) { this.x = 0; }
+		else if (this.x > innerWidth) { this.x = innerWidth; }
+		if (this.y < 0) { this.y = 0; }
+		else if (this.y > innerHeight) { this.y = innerHeight; }
 		this.update();
 	}
 	update() {
