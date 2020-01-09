@@ -218,10 +218,11 @@ GamepadManager = function() {
 				}
 				g.update = function() {
 					//remove dead zones and standardized distances
-					this.newAxes = this.axes;
-					for (a of this.newAxes) {
-						if (Math.abs(a) <= 0.1) {
-							a = 0;
+					this.newAxes = [];
+					for (var a = 0; a < this.axes.length; a++) {
+						this.newAxes.push(this.axes[a]);
+						if (Math.abs(this.newAxes[a]) <= 0.1) {
+							this.newAxes[a] = 0;
 						}
 					}
 					for (var a = 0; a < this.newAxes.length; a += 2) {
