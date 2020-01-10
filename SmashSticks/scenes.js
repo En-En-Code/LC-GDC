@@ -182,7 +182,16 @@ class Button  {
 		this.txt = t;
 		this.selected = false;
 	}
-	update() {}
+	update() {
+		if (mouse.clicked == true) {
+			for (var x = 0; x < cursorArray.length; x++){
+			if (mouseBoxCollision(mouse,this)){
+				btnFunc()
+			}
+		}
+		}
+		mouse.clicked = false;
+	}
 	updateXScaling() {
 		this.x = this.xFunct();
 		this.w = this.wFunct();
@@ -193,6 +202,9 @@ class Button  {
 	}
 	unload() {
 		this.selected = false;
+	}
+	btnFunc(){
+		//button functions goes here
 	}
 	render() {
 		ctx.fillStyle = "#555555";
