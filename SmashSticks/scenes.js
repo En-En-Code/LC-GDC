@@ -57,7 +57,12 @@ class Scene {
 			this.objs[x].unload();
 		}
 	}
-	update() {}
+	update() {
+		for (var x = 0; x < this.objs.length; x++) {
+			this.objs[x].update();
+		}
+		this.render();
+	}
 	updateXScaling() {
 		for (var x = 0; x < this.objs.length; x++) {
 			this.objs[x].updateXScaling();
@@ -68,7 +73,11 @@ class Scene {
 			this.objs[x].updateYScaling();
 		}	
 	}
-	render() {}
+	render() {
+		for (var x = 0; x < this.objs.length; x++) {
+			this.objs[x].render();
+		}		
+	}
 }
 
 class StartScene extends Scene {
@@ -89,17 +98,6 @@ class StartScene extends Scene {
 		this.objs.push(this.startButton);
 		this.objs.push(this.optionsButton);
 	}
-	update() {
-		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].update();
-		}
-		this.render();
-	}
-	render() {
-		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].render();
-		}
-	}
 }
 
 class OptionsScene extends Scene {
@@ -118,21 +116,10 @@ class OptionsScene extends Scene {
 		this.objs.push(this.controlsButton);
 		this.objs.push(this.backButton);
 	}
-	update() {
-		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].update();
-		}
-		this.render();
-	}
-	render() {
-		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].render();
-		}
-	}
 }
 
 class ControlChangeScene extends Scene { 
-	/** Scene for real gamers to change their control layout. **/
+	/** Scene for real gamers (not Julian) to change their control layout. **/
 	constructor() {
 		super();
 		this.name = "controls";
@@ -142,17 +129,6 @@ class ControlChangeScene extends Scene {
 								function() {return innerHeight/6;}, "Back", "options");
 		this.objs.push(this.backButton);
 	}
-	update() {
-		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].update();
-		}
-		this.render();
-	}
-	render() {
-		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].render();
-		}
-	}
 }
 
 class FightScene extends Scene {
@@ -160,12 +136,7 @@ class FightScene extends Scene {
 	constructor() {
 		super();
 		this.name = "ingame";
-		//this.objs.push(new Character("#ab1ba3"));
-	}
-	update() {
-		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].render();
-		}
+		this.objs.push(new Character("#ab1ba3"));
 	}
 }
 
@@ -180,17 +151,13 @@ class Button  {
 		this.wFunct = w;
 		this.hFunct = h;
 		this.txt = t;
-		this.selected = false;
 	}
 	update() {
-		if (mouse.clicked == true) {
-			for (var x = 0; x < cursorArray.length; x++){
-			if (mouseBoxCollision(mouse,this)){
-				btnFunc()
+		for (var c of cursorArray) {
+			if (c && pointRectCollision(c, this) && c.selecting) { 
+				this.btnFunc();
 			}
 		}
-		}
-		mouse.clicked = false;
 	}
 	updateXScaling() {
 		this.x = this.xFunct();
@@ -201,7 +168,6 @@ class Button  {
 		this.h = this.hFunct();
 	}
 	unload() {
-		this.selected = false;
 	}
 	btnFunc(){
 		//button functions goes here
@@ -223,9 +189,7 @@ class SceneChangeButton extends Button {
 		this.redirect = r;
 		this.manager = null;
 	}
-	update() {
-		if (this.selected) {
-			this.manager.changeScene(this.redirect);
-		}
+	btnFunc() {
+		this.manager.changeScene(this.redirect);
 	}
 }
