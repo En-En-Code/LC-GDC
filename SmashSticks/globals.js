@@ -128,9 +128,11 @@ Mouse = function() {
 	mouse.x = 0;
 	mouse.y = 0;
 	mouse.cursor = new Cursor();
+	mouse.down = false;
 	
 	mouse.update = function() {
 		mouse.cursor.constUpdate(mouse.x, mouse.y);
+		mouse.cursor.checkStatus(mouse.down);
 	}
 	
 	window.addEventListener('mousemove', move);	
@@ -141,7 +143,14 @@ Mouse = function() {
 	
 	window.addEventListener('click', click);
 	function click(e) {
-		
+	}
+	window.addEventListener('mousedown', down);
+	function down(e) {
+		mouse.down = true;
+	}
+	window.addEventListener('mouseup', up);
+	function up(e) {
+		mouse.down = false;
 	}
 	
 	canvas.requestPointerLock = canvas.requestPointerLock ||
@@ -234,6 +243,8 @@ GamepadManager = function() {
 					}
 					//cursor movement
 					this.cursor.delUpdate(this.newAxes[0] * 10, this.newAxes[1] * 10);
+					//if (A) button (or equivalent) is pressed, selection works
+					this.cursor.checkStatus(this.buttons[0].pressed);
 				}
 				g.update();
 			}
@@ -253,6 +264,8 @@ class Cursor {
 		this.w = 10;
 		this.h = 10;
 		this.visible = true;
+		this.selecting = false;
+		this.buffer = false; //prevents this.selecting from activating when true
 		for (var x = 0; x < cursorArray.length; x++) {
 			if (cursorArray[x] === undefined) {
 				this.index = x;
@@ -285,6 +298,19 @@ class Cursor {
 		else if (this.y > innerHeight) { this.y = innerHeight; }
 		this.update();
 	}
+	checkStatus(b) {
+		//checks b and this.buffer to determine how to behave
+		if (b) {
+			if (this.buffer) {
+				this.selecting = false;
+			} else {
+				this.selecting = true;
+				this.buffer = true;
+			}
+		} else {
+			this.buffer = false;
+		}
+	}
 	update() {
 		if (this.visible) {
 			this.render();
@@ -298,6 +324,19 @@ class Cursor {
 		ctx.lineTo(this.x, this.y + 1.5 * this.h);
 		ctx.fill();
 	}
+}
+
+Keyboard = function() {
+	var keys = [];
+	window.addEventListener("keyup", keyUp);
+	function keyUp(e) {
+		keys[e.keyCode] = true;
+	}
+	window.addEventListener("keydown", keyDown);
+	function keyDown(e) {
+		keys[e.keyCode] = false;
+	}
+	return keys;
 }
 
 /////////////////
@@ -332,6 +371,9 @@ function randFromList(a) {
 function distance(a, b) {
 	return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 }
+function degToRad(a) {
+	return a * Math.PI / 180;
+}
 
 ///////////////////
 // MISCELLANEOUS //
@@ -344,6 +386,9 @@ function mid2Edge(c, l) {
 }
 function isEqual(a, b) {
 	///@return True if a and b have equal values for all properties, False otherwise
+	if (a == undefined || b == undefined) {
+		return a === b;
+	}
 	var aProps = Object.getOwnPropertyNames(a);
     var bProps = Object.getOwnPropertyNames(b);
 	if (aProps.length != bProps.length) {
