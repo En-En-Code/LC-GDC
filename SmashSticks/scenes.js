@@ -109,11 +109,16 @@ class OptionsScene extends Scene {
 								function() {return innerHeight/2;},
 								function() {return innerWidth/6;},
 								function() {return innerHeight/6;}, "Controls", "controls");
+		this.fpsButton = new BooleanButton(function() {return innerWidth/3;},
+								function() {return innerHeight/2;},
+								function() {return innerWidth/6;},
+								function() {return innerHeight/6;}, "Show FPS", showFPS);
 		this.backButton = new SceneChangeButton(function() {return innerWidth/2;},
 								function() {return innerHeight*17/20;},
 								function() {return innerWidth/6;},
 								function() {return innerHeight/6;}, "Back", "start");
 		this.objs.push(this.controlsButton);
+		this.objs.push(this.fpsButton);
 		this.objs.push(this.backButton);
 	}
 }
@@ -136,7 +141,7 @@ class FightScene extends Scene {
 	constructor() {
 		super();
 		this.name = "ingame";
-		this.objs.push(new Character("#ab1ba3"));
+		//this.objs.push(new Character("#ab1ba3"));
 	}
 }
 
@@ -175,6 +180,7 @@ class Button  {
 	render() {
 		ctx.fillStyle = "#555555";
 		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
+		ctx.textBaseline = 'middle';
 		ctx.textAlign = 'center';
 		ctx.font = (this.w / this.txt.length) + "px Comic Sans MS";
 		ctx.fillStyle = "#000000";
@@ -191,5 +197,30 @@ class SceneChangeButton extends Button {
 	}
 	btnFunc() {
 		this.manager.changeScene(this.redirect);
+	}
+}
+
+class BooleanButton extends Button {
+	/** A Button that changes the value of a Boolean when pressed. **/
+	constructor(x, y, w, h, t, b) {
+		super(x, y, w, h, t);
+		this.bool = b;
+	}
+	btnFunc() {
+		this.bool.value = !this.bool.value;
+	}
+	render() {
+		if (this.bool.value) {
+			ctx.fillStyle = "green";
+		} else {
+			ctx.fillStyle = "darkred";
+		}
+		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
+		ctx.textBaseline = 'middle';
+		ctx.textAlign = 'center';
+		ctx.font = (this.w / this.txt.length) + "px Comic Sans MS";
+		ctx.fillStyle = "#000000";
+		ctx.fillText(this.txt, this.x, this.y - this.h/8, this.w);
+		ctx.fillText(this.bool.value.toString(), this.x, this.y + this.h/8, this.w);
 	}
 }
