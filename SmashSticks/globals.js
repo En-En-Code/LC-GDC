@@ -96,6 +96,28 @@ function segmentSegmentCollision(l1, l2) {
 	return false;
 }
 
+class Rectangle { //the base rectangle
+	constructor(x, y, w, h) {
+		this.x = x;
+		this.y = y;
+		this.width = w;
+		this.height = h;
+		this.color = "#FFFFFF";
+
+		this.left = false;
+		this.right = false;
+		this.up = false;
+		this.down = false;
+	}
+	update(){
+
+	}
+	render() {
+		ctx.fillStyle = this.color;
+		ctx.fillRect(this.x, this.y, this.width, this.height);
+	}
+}
+
 //////////////////////
 // AUDIO MANAGEMENT //
 //////////////////////
