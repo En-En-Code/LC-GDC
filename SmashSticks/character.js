@@ -7,3 +7,11 @@
 class Character {
 	
 }
+
+class Hitbox extends Rectangle { //box that determines character's collisions, if it is hit by hurtbox then character takes damage
+	
+}
+
+class Hurtbox extends Rectangle { //this is the hitboxes of attacks, if it collides with a hitbox then character takes damage
+	
+}
