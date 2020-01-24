@@ -98,11 +98,11 @@ function segmentSegmentCollision(l1, l2) {
 
 class Rectangle { //the base rectangle
 	constructor(x, y, w, h) {
-		this.x = x;
-		this.y = y;
-		this.width = w;
-		this.height = h;
-		this.color = "#FFFFFF";
+		this.xFunct = x;
+		this.yFunct = y;
+		this.wFunct = w;
+		this.hFunct = h;
+		this.color = "#000000";
 
 		this.left = false;
 		this.right = false;
@@ -112,9 +112,19 @@ class Rectangle { //the base rectangle
 	update(){
 
 	}
+	
+	updateXScaling() {
+		this.x = this.xFunct();
+		this.w = this.wFunct();
+	}
+	updateYScaling() {
+		this.y = this.yFunct();
+		this.h = this.hFunct();
+	}
+	
 	render() {
 		ctx.fillStyle = this.color;
-		ctx.fillRect(this.x, this.y, this.width, this.height);
+		ctx.fillRect(this.x, this.y, this.w, this.h);
 	}
 }
 
