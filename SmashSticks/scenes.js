@@ -141,7 +141,10 @@ class FightScene extends Scene {
 	constructor() {
 		super();
 		this.name = "ingame";
-		this.floor = new Rectangle(0, innerHeight - 100, innerWidth, 100);
+		this.floor = new Rectangle(function() {return 0;},
+		function() {return innerHeight - 100;},
+		function(){return innerWidth;}, 
+		function() {return 100;});
 		this.objs.push(this.floor);
 		//this.objs.push(new Character("#ab1ba3"));
 	}
