@@ -32,11 +32,11 @@ class SceneManager {
 	update() {
 		this.scenes.get(this.currScene).update();
 	}
-	updateXScaling() {
-		this.scenes.get(this.currScene).updateXScaling();
+	updateXScaling(o, n) {
+		this.scenes.get(this.currScene).updateXScaling(o, n);
 	}
-	updateYScaling() {
-		this.scenes.get(this.currScene).updateYScaling();
+	updateYScaling(o, n) {
+		this.scenes.get(this.currScene).updateYScaling(o, n);
 	}
 }
 
@@ -44,18 +44,23 @@ class Scene {
 	/** Class that gives the functions needed to define a scene. **/
 	constructor() {
 		this.objs = [];
+		//length and width of the screen at its last known load
+		this.lastW = innerWidth;
+		this.lastH = innerHeight;
 	}
 	
 	load() {
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].updateXScaling();
-			this.objs[x].updateYScaling();
+			this.objs[x].updateXScaling(this.lastW, innerWidth);
+			this.objs[x].updateYScaling(this.lastH, innerHeight);
 		}
 	}
 	unload() { 	
 		for (var x = 0; x < this.objs.length; x++) {
 			this.objs[x].unload();
 		}
+		this.lastW = innerWidth;
+		this.lastH = innerHeight;
 	}
 	update() {
 		for (var x = 0; x < this.objs.length; x++) {
@@ -63,14 +68,14 @@ class Scene {
 		}
 		this.render();
 	}
-	updateXScaling() {
+	updateXScaling(o, n) {
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].updateXScaling();
+			this.objs[x].updateXScaling(o, n);
 		}
 	}
-	updateYScaling() {
+	updateYScaling(o, n) {
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].updateYScaling();
+			this.objs[x].updateYScaling(o, n);
 		}	
 	}
 	render() {
@@ -87,14 +92,10 @@ class StartScene extends Scene {
 		//constructors in subclasses of scenes declares everything they need
 		//start operations
 		this.name = "start";
-		this.startButton = new SceneChangeButton(function() {return innerWidth/2;},
-								function() {return innerHeight/2;},
-								function() {return innerWidth/6;},
-								function() {return innerHeight/6;}, "START!", "ingame");
-		this.optionsButton = new SceneChangeButton(function() {return innerWidth/2;},
-								function() {return innerHeight*17/20;},
-								function() {return innerWidth/6;},
-								function() {return innerHeight/6;}, "Options", "options");
+		this.startButton = new SceneChangeButton(innerWidth/2, innerHeight/2, innerWidth/6, innerHeight/6,
+								"START!", "ingame");
+		this.optionsButton = new SceneChangeButton(innerWidth/2, innerHeight*17/20, innerWidth/6, innerHeight/6, 
+								"Options", "options");
 		this.objs.push(this.startButton);
 		this.objs.push(this.optionsButton);
 	}
@@ -105,18 +106,12 @@ class OptionsScene extends Scene {
 	constructor() {
 		super();
 		this.name = "options";
-		this.controlsButton = new SceneChangeButton(function() {return innerWidth/2;},
-								function() {return innerHeight/2;},
-								function() {return innerWidth/6;},
-								function() {return innerHeight/6;}, "Controls", "controls");
-		this.fpsButton = new BooleanButton(function() {return innerWidth/3;},
-								function() {return innerHeight/2;},
-								function() {return innerWidth/6;},
-								function() {return innerHeight/6;}, "Show FPS", showFPS);
-		this.backButton = new SceneChangeButton(function() {return innerWidth/2;},
-								function() {return innerHeight*17/20;},
-								function() {return innerWidth/6;},
-								function() {return innerHeight/6;}, "Back", "start");
+		this.controlsButton = new SceneChangeButton(innerWidth/2, innerHeight/2, innerWidth/6, innerHeight/6,
+								"Controls", "controls");
+		this.fpsButton = new BooleanButton(innerWidth/3, innerHeight/2, innerWidth/6, innerHeight/6,
+								"Show FPS", showFPS);
+		this.backButton = new SceneChangeButton(innerWidth/2, innerHeight*17/20, innerWidth/6, innerHeight/6, 
+								"Back", "start");
 		this.objs.push(this.controlsButton);
 		this.objs.push(this.fpsButton);
 		this.objs.push(this.backButton);
@@ -128,10 +123,8 @@ class ControlChangeScene extends Scene {
 	constructor() {
 		super();
 		this.name = "controls";
-		this.backButton = new SceneChangeButton(function() {return innerWidth/2;},
-								function() {return innerHeight*17/20;},
-								function() {return innerWidth/6;},
-								function() {return innerHeight/6;}, "Back", "options");
+		this.backButton = new SceneChangeButton(innerWidth/2, innerHeight*17/20, innerWidth/6, innerHeight/6,
+								"Back", "options");
 		this.objs.push(this.backButton);
 	}
 }
@@ -141,11 +134,6 @@ class FightScene extends Scene {
 	constructor() {
 		super();
 		this.name = "ingame";
-		this.floor = new Rectangle(function() {return 0;},
-		function() {return innerHeight - 100;},
-		function(){return innerWidth;}, 
-		function() {return 100;});
-		this.objs.push(this.floor);
 		//this.objs.push(new Character("#ab1ba3"));
 	}
 }
@@ -153,14 +141,13 @@ class FightScene extends Scene {
 ///////////////////
 // EXTRA CLASSES //
 ///////////////////
-class Button  {
-	/** A box with text that can be selected (how?) for an effect. **/
+class Button extends Rectangle {
+	/** A box with text that can be selected for an effect. **/
 	constructor(x, y, w, h, t) {
-		this.xFunct = x;
-		this.yFunct = y;
-		this.wFunct = w;
-		this.hFunct = h;
+		super(x, y, w, h);
+		this.color = "#555555";
 		this.txt = t;
+		console.log(this);
 	}
 	update() {
 		for (var c of cursorArray) {
@@ -169,22 +156,13 @@ class Button  {
 			}
 		}
 	}
-	updateXScaling() {
-		this.x = this.xFunct();
-		this.w = this.wFunct();
-	}
-	updateYScaling() {
-		this.y = this.yFunct();
-		this.h = this.hFunct();
-	}
 	unload() {
 	}
 	btnFunc(){
 		//button functions goes here
 	}
 	render() {
-		ctx.fillStyle = "#555555";
-		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
+		super.render();
 		ctx.textBaseline = 'middle';
 		ctx.textAlign = 'center';
 		ctx.font = (this.w / this.txt.length) + "px Comic Sans MS";
