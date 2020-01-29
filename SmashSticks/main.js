@@ -23,19 +23,23 @@ window.onload = function() {
 	mouse = new Mouse();
 	kboard = new Keyboard();
 	document.body.style.cursor = 'none';
-	setInterval(main, 100/6);
+	main();
 }
 
 function main() {
 	//These values are now updated every frame, which accommodates changing
 	//the screen size. The SceneManager updates everything inside it in turn.
 	if (canvas.width != innerWidth) {
+		if (canvas.width) {
+			sM.updateXScaling(canvas.width, innerWidth);
+		}
 		canvas.width = innerWidth;
-		sM.updateXScaling();
 	}
 	if (canvas.height != innerHeight) {
+		if (canvas.height) {
+			sM.updateYScaling(canvas.height, innerHeight);
+		}
 		canvas.height = innerHeight;
-		sM.updateYScaling();
 	}
 	ctx.fillStyle = "#FFFFFF";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -66,4 +70,5 @@ function main() {
 	
 	mouse.update();
 	gM.update();
+	requestAnimationFrame(main);
 }
