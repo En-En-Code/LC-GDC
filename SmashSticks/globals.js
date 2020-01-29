@@ -96,13 +96,31 @@ function segmentSegmentCollision(l1, l2) {
 	return false;
 }
 
-class Rectangle { //the base rectangle
-	constructor(x, y, w, h) {
-		this.xFunct = x;
-		this.yFunct = y;
-		this.wFunct = w;
-		this.hFunct = h;
-		this.color = "#000000";
+///////////////////
+// BASE CLASSES //
+///////////////////
+class Positional { 
+	/** A class describing anything with x and y co-ords **/
+	constructor(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+	updateXScaling(o, n) {
+		this.x *= n/o;
+		if (this.w) { this.w *= n/o; }
+	}
+	updateYScaling(o, n) {
+		this.y *= n/o;
+		if (this.h) { this.h *= n/o; }
+	}
+}
+
+class Rectangle extends Positional { //the base rectangle
+	constructor(x, y, w, h, c) {
+		super(x, y);
+		this.w = w;
+		this.h = h;
+		this.color = c;
 
 		this.left = false;
 		this.right = false;
@@ -113,18 +131,9 @@ class Rectangle { //the base rectangle
 
 	}
 	
-	updateXScaling() {
-		this.x = this.xFunct();
-		this.w = this.wFunct();
-	}
-	updateYScaling() {
-		this.y = this.yFunct();
-		this.h = this.hFunct();
-	}
-	
 	render() {
 		ctx.fillStyle = this.color;
-		ctx.fillRect(this.x, this.y, this.w, this.h);
+		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
 	}
 }
 
@@ -159,11 +168,13 @@ Mouse = function() {
 	var mouse = {};
 	mouse.x = 0;
 	mouse.y = 0;
+	mouse.dx = 0;
+	mouse.dy = 0;
 	mouse.cursor = new Cursor();
 	mouse.down = false;
 	
 	mouse.update = function() {
-		mouse.cursor.constUpdate(mouse.x, mouse.y);
+		mouse.cursor.constUpdate(mouse.x, mouse.y, true);
 		mouse.cursor.checkStatus(mouse.down);
 	}
 	
@@ -171,10 +182,13 @@ Mouse = function() {
 	function move(e) {
 		mouse.x = e.clientX;
 		mouse.y = e.clientY;
+		mouse.dx = e.movementX;
+		mouse.dy = e.movementY;
 	}
 	
 	window.addEventListener('click', click);
 	function click(e) {
+
 	}
 	window.addEventListener('mousedown', down);
 	function down(e) {
@@ -314,14 +328,14 @@ class Cursor {
 			this.color = "black";
 		}
 	}
-	constUpdate(x, y) {
+	constUpdate(x, y, b) {
 		this.x = x;
 		this.y = y;
-		this.update();
+		if (b) { this.update(); }
 	}
 	delUpdate(x, y) {
-		if (this.x == null) {this.x = innerWidth/2;}
-		if (this.y == null) {this.y = innerHeight/2;}
+		if (this.x == null) {this.x = innerWidth;}
+		if (this.y == null) {this.y = innerHeight;}
 		this.x += x;
 		this.y += y;
 		if (this.x < 0) { this.x = 0; }
