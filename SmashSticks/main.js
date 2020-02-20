@@ -42,6 +42,8 @@ function main() {
 		canvas.height = innerHeight;
 	}
 	
+	sM.update();
+	
 	if (showFPS.value) {
 		//determines the running time in between frames to obtain a frame rate
 		///could be better by not checking every frame (e.g. check 1 in 4 frames)
@@ -60,8 +62,6 @@ function main() {
 		formatText(15, "Courier", "#000000", "center", "middle");
 		ctx.fillText(Math.round(showFPS.fps) + " fps", innerWidth/24, innerHeight/24);
 	}
-	
-	sM.update();
 	
 	mouse.update();
 	gM.update();
