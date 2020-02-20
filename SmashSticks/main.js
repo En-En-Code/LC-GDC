@@ -41,8 +41,6 @@ function main() {
 		}
 		canvas.height = innerHeight;
 	}
-	ctx.fillStyle = "#FFFFFF";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	
 	if (showFPS.value) {
 		//determines the running time in between frames to obtain a frame rate
@@ -59,10 +57,7 @@ function main() {
 			}
 			showFPS.fps /= 60;
 		}
-		ctx.textBaseline = 'middle';
-		ctx.textAlign = 'center';
-		ctx.font = "15px Courier";
-		ctx.fillStyle = "#000000";
+		formatText(15, "Courier", "#000000", "center", "middle");
 		ctx.fillText(Math.round(showFPS.fps) + " fps", innerWidth/24, innerHeight/24);
 	}
 	
