@@ -4,13 +4,22 @@
 	the characters and their interactions.
 */
 
-class Character { //will probably just be a collection of animations that the hitboxes is tied to the hitboxes
-	constructor(x, y, w, h){
-		this.keyUp = 68;
+class Character extends Rectangle { //will probably just be a collection of animations that the hitboxes is tied to the hitboxes
+	constructor(x, y, w, h, c){
+		super(x, y, w, h, c);
+		this.keyRight = 68;
+		this.keyLeft = 65;
+		this.keyJump = 87;
 	}
 	update(){
-		if(kboard[this.keyUp]) {
-			this.x += 1;
+		if(kboard[this.keyRight]) {
+			this.x += 3;
+		}
+		if(kboard[this.keyLeft]) {
+			this.x -= 3;
+		}
+		if(kboard[this.keyJump]) {
+			this.y -= 3;
 		}
 	}
 }
@@ -29,8 +38,3 @@ class Hurtbox extends Rectangle { //this is the hitboxes of attacks, if it colli
 		super(x, y, w, h)
 	}
 }
-
-//arrays and push
-var boxArray = []
-sM.scenes.get("ingame").objs.push(boxArray);
-boxArray.push(testbox);
