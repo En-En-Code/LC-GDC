@@ -424,6 +424,12 @@ function degToRad(a) {
 ///////////////////
 // MISCELLANEOUS //
 ///////////////////
+function formatText(size, font, color, hAlign, vAlign) {
+	ctx.font = size + "px " + font;
+	ctx.fillStyle = color;
+	ctx.textAlign = hAlign; // left|center|right|start|end
+	ctx.textBaseline = vAlign; // alphabetic|top|hanging|middle|ideographic|bottom
+}
 function mid2Edge(c, l) {
 	///@return Assume a vertical or horizontal line with a center at c and
 	///length l, return the top-leftmost point
