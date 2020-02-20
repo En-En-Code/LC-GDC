@@ -51,37 +51,50 @@ class Scene {
 	
 	load() {
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].updateXScaling(this.lastW, innerWidth);
-			this.objs[x].updateYScaling(this.lastH, innerHeight);
+			var t = this.objs[x];
+			if (t.updateXScaling) {
+				t.updateXScaling(this.lastW, innerWidth);
+			}
+			if (t.updateYScaling) {
+				t.updateYScaling(this.lastH, innerHeight);
+			}
+			if (t.load) { t.load(); }
 		}
 	}
 	unload() { 	
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].unload();
+			var t = this.objs[x];
+			if (t.unload) { t.unload(); }
 		}
 		this.lastW = innerWidth;
 		this.lastH = innerHeight;
 	}
 	update() {
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].update();
+			var t = this.objs[x];
+			if (t.update) { t.update(); }
 		}
 		this.render();
 	}
 	updateXScaling(o, n) {
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].updateXScaling(o, n);
+			var t = this.objs[x];
+			if (t.updateXScaling) { t.updateXScaling(o, n); }
 		}
 	}
 	updateYScaling(o, n) {
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].updateYScaling(o, n);
+			var t = this.objs[x];
+			if (t.updateYScaling) { t.updateYScaling(o, n); }
 		}	
 	}
 	render() {
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].render();
-		}		
+			var t = this.objs[x];
+			if (t.render) { t.render(); }
+		}
 	}
 }
 
@@ -135,15 +148,30 @@ class FightScene extends Scene {
 		super();
 		this.name = "ingame";
 		this.floor = new Rectangle(innerWidth/2, innerHeight - 50, innerWidth, 100, "#9278F1");
-		this.testbox = new Character(50, window.innerHeight - 250, 100, 300, "#555555");
+		this.chars = [];
+		this.chars[0] = new Character(50, window.innerHeight - 250, 100, 300, "#555555");
 		
 		this.objs.push(this.floor);
-		this.objs.push(this.testbox);
+		this.objs.push(this.chars);
 	}
 	update() {
 		super.update();
-		if (!rectRectCollision(this.testbox, this.floor)) { 
-			this.testbox.y += 1;
+		var f;
+		for (f of this.chars) {
+			f.update();
+			if (!rectRectCollision(f, this.floor)) { 
+				f.y += f.gVel;
+				f.gVel += f.G_ACCEL;
+			} else {
+				f.gVel = 0;
+			}
+		}
+	}
+	render() {
+		super.render();
+		var f;
+		for (f of this.chars) {
+			f.render(); 
 		}
 	}
 }
@@ -157,7 +185,6 @@ class Button extends Rectangle {
 		super(x, y, w, h);
 		this.color = "#555555";
 		this.txt = t;
-		console.log(this);
 	}
 	update() {
 		for (var c of cursorArray) {
@@ -166,17 +193,12 @@ class Button extends Rectangle {
 			}
 		}
 	}
-	unload() {
-	}
-	btnFunc(){
+	btnFunc() {
 		//button functions goes here
 	}
 	render() {
 		super.render();
-		ctx.textBaseline = 'middle';
-		ctx.textAlign = 'center';
-		ctx.font = (this.w / this.txt.length) + "px Comic Sans MS";
-		ctx.fillStyle = "#000000";
+		formatText(this.w / this.txt.length, "Comic Sans MS", "#000000", "center", "middle");
 		ctx.fillText(this.txt, this.x, this.y, this.w);
 	}
 }
@@ -207,12 +229,9 @@ class BooleanButton extends Button {
 			ctx.fillStyle = "green";
 		} else {
 			ctx.fillStyle = "darkred";
-		}
+		}	
 		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
-		ctx.textBaseline = 'middle';
-		ctx.textAlign = 'center';
-		ctx.font = (this.w / this.txt.length) + "px Comic Sans MS";
-		ctx.fillStyle = "#000000";
+		formatText(this.w / this.txt.length, "Comic Sans MS", "#000000", "center", "middle");
 		ctx.fillText(this.txt, this.x, this.y - this.h/8, this.w);
 		ctx.fillText(this.bool.value.toString(), this.x, this.y + this.h/8, this.w);
 	}
