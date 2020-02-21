@@ -63,8 +63,7 @@ class Scene {
 	}
 	unload() { 	
 		for (var x = 0; x < this.objs.length; x++) {
-			var t = this.objs[x];
-			if (t.unload) { t.unload(); }
+			this.objs[x].unload();
 		}
 		this.lastW = innerWidth;
 		this.lastH = innerHeight;
@@ -78,14 +77,12 @@ class Scene {
 	}
 	updateXScaling(o, n) {
 		for (var x = 0; x < this.objs.length; x++) {
-			var t = this.objs[x];
-			if (t.updateXScaling) { t.updateXScaling(o, n); }
+			this.objs[x].updateXScaling(o, n);
 		}
 	}
 	updateYScaling(o, n) {
 		for (var x = 0; x < this.objs.length; x++) {
-			var t = this.objs[x];
-			if (t.updateYScaling) { t.updateYScaling(o, n); }
+			this.objs[x].updateYScaling(o, n);
 		}	
 	}
 	render() {
@@ -94,7 +91,7 @@ class Scene {
 		for (var x = 0; x < this.objs.length; x++) {
 			var t = this.objs[x];
 			if (t.render) { t.render(); }
-		}
+		}	
 	}
 }
 
@@ -142,6 +139,36 @@ class ControlChangeScene extends Scene {
 	}
 }
 
+class MatchTimer {
+	constructor() {
+		this.startTime = Date.now();
+		this.endTime = this.startTime + 90000;
+		this.remainTime = this.endTime - Date.now();
+	}
+	update() {
+		this.remainTime = this.endTime - Date.now();
+		if (this.remainTime <= 0) {
+			//make htis do something
+		}
+	}
+	render(){
+		
+		//text
+		ctx.textAlign = "center";
+		ctx.fillStyle = "#000000";
+		ctx.font = "small-caps lighter 25px arial";
+		ctx.fillText(Math.trunc(this.remainTime/1000), this.x = 300, this.y = 35);
+	}
+	updateXScaling(o, n) {
+		this.x *= n/o;
+		if (this.w) { this.w *= n/o; }
+	}
+	updateYScaling(o, n) {
+		this.y *= n/o;
+		if (this.h) { this.h *= n/o; }
+	}
+}
+
 class FightScene extends Scene {
 	/** A Scene to be center-stage on the ultimate stick figure beatdown. **/
 	constructor() {
@@ -150,9 +177,12 @@ class FightScene extends Scene {
 		this.floor = new Rectangle(innerWidth/2, innerHeight - 50, innerWidth, 100, "#9278F1");
 		this.chars = [];
 		this.chars[0] = new Character(50, window.innerHeight - 250, 100, 300, "#555555");
+		this.testbox = new Hitbox(50, window.innerHeight - 250, 100, 300, "#555555");
+		this.matchTimer = new MatchTimer()
 		
 		this.objs.push(this.floor);
-		this.objs.push(this.chars);
+		this.objs.push(this.testbox);
+		this.objs.push(this.matchTimer);
 	}
 	update() {
 		super.update();
@@ -176,6 +206,8 @@ class FightScene extends Scene {
 	}
 }
 
+
+
 ///////////////////
 // EXTRA CLASSES //
 ///////////////////
@@ -185,6 +217,7 @@ class Button extends Rectangle {
 		super(x, y, w, h);
 		this.color = "#555555";
 		this.txt = t;
+		
 	}
 	update() {
 		for (var c of cursorArray) {
@@ -193,7 +226,8 @@ class Button extends Rectangle {
 			}
 		}
 	}
-	btnFunc() {
+	
+	btnFunc(){
 		//button functions goes here
 	}
 	render() {
@@ -229,9 +263,12 @@ class BooleanButton extends Button {
 			ctx.fillStyle = "green";
 		} else {
 			ctx.fillStyle = "darkred";
-		}	
+		}
 		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
-		formatText(this.w / this.txt.length, "Comic Sans MS", "#000000", "center", "middle");
+		ctx.textBaseline = 'middle';
+		ctx.textAlign = 'center';
+		ctx.font = (this.w / this.txt.length) + "px Comic Sans MS";
+		ctx.fillStyle = "#000000";
 		ctx.fillText(this.txt, this.x, this.y - this.h/8, this.w);
 		ctx.fillText(this.bool.value.toString(), this.x, this.y + this.h/8, this.w);
 	}
