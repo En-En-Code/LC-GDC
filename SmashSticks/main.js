@@ -11,6 +11,7 @@ sM.addScene(new StartScene());
 sM.addScene(new OptionsScene());
 sM.addScene(new ControlChangeScene());
 sM.addScene(new FightScene());
+sM.addScene(new AfterFightScene());
 sM.changeScene("start");
 
 var gM = new GamepadManager();
