@@ -10,18 +10,21 @@ class Character extends Rectangle { //will probably just be a collection of anim
 		this.keyRight = 68;
 		this.keyLeft = 65;
 		this.keyJump = 87;
+		this.canMove = false;
 		this.gVel = 0;
 		this.G_ACCEL = 1;
 	}
 	update() {
-		if(kboard[this.keyRight]) {
-			this.x += 3;
-		}
-		if(kboard[this.keyLeft]) {
-			this.x -= 3;
-		}
-		if(kboard[this.keyJump]) {
-			this.y -= 15;
+		if (this.canMove) {
+			if(kboard[this.keyRight]) {
+				this.x += 3;
+			}
+			if(kboard[this.keyLeft]) {
+				this.x -= 3;
+			}
+			if(kboard[this.keyJump]) {
+				this.y -= 15;
+			}
 		}
 	}
 }
