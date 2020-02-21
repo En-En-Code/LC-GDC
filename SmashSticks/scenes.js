@@ -42,7 +42,8 @@ class SceneManager {
 
 class Scene {
 	/** Class that gives the functions needed to define a scene. **/
-	constructor() {
+	constructor(n) {
+		this.name = n;
 		this.objs = [];
 		//length and width of the screen at its last known load
 		this.lastW = innerWidth;
@@ -63,7 +64,8 @@ class Scene {
 	}
 	unload() { 	
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].unload();
+			var t = this.objs[x];
+			if (t.unload) { t.unload(); }
 		}
 		this.lastW = innerWidth;
 		this.lastH = innerHeight;
@@ -77,12 +79,14 @@ class Scene {
 	}
 	updateXScaling(o, n) {
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].updateXScaling(o, n);
+			var t = this.objs[x];
+			if (t.updateXScaling) { t.updateXScaling(o, n); }
 		}
 	}
 	updateYScaling(o, n) {
 		for (var x = 0; x < this.objs.length; x++) {
-			this.objs[x].updateYScaling(o, n);
+			var t = this.objs[x];
+			if (t.updateYScaling) { t.updateYScaling(o, n); }
 		}	
 	}
 	render() {
@@ -91,17 +95,19 @@ class Scene {
 		for (var x = 0; x < this.objs.length; x++) {
 			var t = this.objs[x];
 			if (t.render) { t.render(); }
-		}	
+			if (Array.isArray(t)) {
+				for (var i of t) { if (i.render) { i.render(); } }
+			}
+		}
 	}
 }
 
 class StartScene extends Scene {
 	/** Scene for when the player first opens the game. **/
 	constructor() {
-		super();
+		super("start");
 		//constructors in subclasses of scenes declares everything they need
 		//start operations
-		this.name = "start";
 		this.startButton = new SceneChangeButton(innerWidth/2, innerHeight/2, innerWidth/6, innerHeight/6,
 								"START!", "ingame");
 		this.optionsButton = new SceneChangeButton(innerWidth/2, innerHeight*17/20, innerWidth/6, innerHeight/6, 
@@ -114,8 +120,7 @@ class StartScene extends Scene {
 class OptionsScene extends Scene {
 	/** Scene for changing options (including dev options) **/
 	constructor() {
-		super();
-		this.name = "options";
+		super("options");
 		this.controlsButton = new SceneChangeButton(innerWidth/2, innerHeight/2, innerWidth/6, innerHeight/6,
 								"Controls", "controls");
 		this.fpsButton = new BooleanButton(innerWidth/3, innerHeight/2, innerWidth/6, innerHeight/6,
@@ -131,64 +136,33 @@ class OptionsScene extends Scene {
 class ControlChangeScene extends Scene { 
 	/** Scene for real gamers (not Julian) to change their control layout. **/
 	constructor() {
-		super();
-		this.name = "controls";
+		super("controls");
 		this.backButton = new SceneChangeButton(innerWidth/2, innerHeight*17/20, innerWidth/6, innerHeight/6,
 								"Back", "options");
 		this.objs.push(this.backButton);
 	}
 }
 
-class MatchTimer {
-	constructor() {
-		this.startTime = Date.now();
-		this.endTime = this.startTime + 90000;
-		this.remainTime = this.endTime - Date.now();
-	}
-	update() {
-		this.remainTime = this.endTime - Date.now();
-		if (this.remainTime <= 0) {
-			//make htis do something
-		}
-	}
-	render(){
-		
-		//text
-		ctx.textAlign = "center";
-		ctx.fillStyle = "#000000";
-		ctx.font = "small-caps lighter 25px arial";
-		ctx.fillText(Math.trunc(this.remainTime/1000), this.x = 300, this.y = 35);
-	}
-	updateXScaling(o, n) {
-		this.x *= n/o;
-		if (this.w) { this.w *= n/o; }
-	}
-	updateYScaling(o, n) {
-		this.y *= n/o;
-		if (this.h) { this.h *= n/o; }
-	}
-}
-
 class FightScene extends Scene {
 	/** A Scene to be center-stage on the ultimate stick figure beatdown. **/
 	constructor() {
-		super();
-		this.name = "ingame";
+		super("ingame");
 		this.floor = new Rectangle(innerWidth/2, innerHeight - 50, innerWidth, 100, "#9278F1");
 		this.chars = [];
 		this.chars[0] = new Character(50, window.innerHeight - 250, 100, 300, "#555555");
-		this.testbox = new Hitbox(50, window.innerHeight - 250, 100, 300, "#555555");
-		this.matchTimer = new MatchTimer()
+		this.matchTimer = new MatchTimer(90000);
 		
 		this.objs.push(this.floor);
-		this.objs.push(this.testbox);
+		this.objs.push(this.chars);
 		this.objs.push(this.matchTimer);
 	}
 	update() {
 		super.update();
-		var f;
-		for (f of this.chars) {
+		for (var f of this.chars) {
+			//if the timer is true, the players can move, otherwise they can't move
+			f.canMove = this.matchTimer.matchGoing;
 			f.update();
+			//i don't think the best place for gravity is here, but it will do for now
 			if (!rectRectCollision(f, this.floor)) { 
 				f.y += f.gVel;
 				f.gVel += f.G_ACCEL;
@@ -197,16 +171,58 @@ class FightScene extends Scene {
 			}
 		}
 	}
-	render() {
-		super.render();
-		var f;
-		for (f of this.chars) {
-			f.render(); 
+}
+
+class MatchTimer extends Positional {
+	constructor(time) {
+		super(innerWidth/2, innerHeight/2);
+		this.matchGoing = false;
+		this.matchLength = time;
+		this.manager = null;
+		this.endTime;
+		this.remainTime;
+	}
+	load() {
+		this.y = innerHeight/2;
+		this.matchGoing = false;
+		this.endTime = Date.now() + 5000;
+	}
+	update() {
+		this.remainTime = this.endTime - Date.now();
+		if (this.remainTime <= 0) {
+			if (this.matchGoing) {
+				//end of match
+				this.manager.changeScene("postgame");
+			} else {
+				//beginning of match
+				this.endTime = Date.now() + this.matchLength;
+				this.matchGoing = true;
+			}
 		}
+	}
+	render() {
+		if (this.remainTime <= 5000) {
+			//dramatic countdown for final few seconds
+			this.y = innerHeight/2;
+			formatText(this.remainTime - Math.trunc(this.remainTime/1000)*1000, "Arial", "#CC0000", "center", "middle");
+		} else {
+			this.y = innerHeight/16;
+			formatText(25, "Arial", "#000000", "center", "middle");
+		}
+		ctx.fillText(Math.ceil(this.remainTime/1000), this.x, this.y);
 	}
 }
 
-
+class AfterFightScene extends Scene {
+	constructor() {
+		/** A scene for viewing the winner, stats, etc., with a way to move on **/
+		super("postgame");
+		this.optionsButton = new SceneChangeButton(innerWidth/2, innerHeight*17/20, innerWidth/6, innerHeight/6, 
+						"Continue", "start");
+						
+		this.objs.push(this.optionsButton);
+	}
+}
 
 ///////////////////
 // EXTRA CLASSES //
@@ -217,7 +233,6 @@ class Button extends Rectangle {
 		super(x, y, w, h);
 		this.color = "#555555";
 		this.txt = t;
-		
 	}
 	update() {
 		for (var c of cursorArray) {
@@ -226,8 +241,7 @@ class Button extends Rectangle {
 			}
 		}
 	}
-	
-	btnFunc(){
+	btnFunc() {
 		//button functions goes here
 	}
 	render() {
@@ -263,12 +277,9 @@ class BooleanButton extends Button {
 			ctx.fillStyle = "green";
 		} else {
 			ctx.fillStyle = "darkred";
-		}
+		}	
 		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
-		ctx.textBaseline = 'middle';
-		ctx.textAlign = 'center';
-		ctx.font = (this.w / this.txt.length) + "px Comic Sans MS";
-		ctx.fillStyle = "#000000";
+		formatText(this.w / this.txt.length, "Comic Sans MS", "#000000", "center", "middle");
 		ctx.fillText(this.txt, this.x, this.y - this.h/8, this.w);
 		ctx.fillText(this.bool.value.toString(), this.x, this.y + this.h/8, this.w);
 	}
