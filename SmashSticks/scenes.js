@@ -149,7 +149,7 @@ class FightScene extends Scene {
 		super("ingame");
 		this.floor = new Rectangle(innerWidth/2, innerHeight - 50, innerWidth, 100, "#9278F1");
 		this.chars = [];
-		this.chars[0] = new Character(50, window.innerHeight - 250, 100, 300, "#555555");
+		this.chars[0] = new Character(50, innerHeight - 250, innerWidth/20, innerHeight/3, "#555555");
 		this.matchTimer = new MatchTimer(90000);
 		
 		this.objs.push(this.floor);
@@ -166,7 +166,9 @@ class FightScene extends Scene {
 			if (!rectRectCollision(f, this.floor)) { 
 				f.y += f.gVel;
 				f.gVel += f.G_ACCEL;
-			} else {
+			} 
+			if (rectRectCollision(f, this.floor)) {
+				rectRectEject(f, this.floor);
 				f.gVel = 0;
 			}
 		}
@@ -185,7 +187,7 @@ class MatchTimer extends Positional {
 	load() {
 		this.y = innerHeight/2;
 		this.matchGoing = false;
-		this.endTime = Date.now() + 5000;
+		this.endTime = Date.now() + 3000;
 	}
 	update() {
 		this.remainTime = this.endTime - Date.now();
