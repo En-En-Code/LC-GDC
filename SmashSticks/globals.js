@@ -95,10 +95,41 @@ function segmentSegmentCollision(l1, l2) {
 	}
 	return false;
 }
+function rectRectEject(pushed, pusher) {
+	// Handles collision between two rectangles (one mobile and one non-mobile).
+	if (rectRectCollision(pushed, pusher)) {
+		//0 == +x, 1 == -x, 2 == +y, 3 == -y;
+		var distances = [Math.abs((pusher.x - pusher.w / 2) - (pushed.x + pushed.w / 2)),
+				Math.abs((pushed.x - pushed.w / 2) - (pusher.x + pusher.w / 2)),
+				Math.abs((pusher.y - pusher.h / 2) - (pushed.y + pushed.h / 2)),
+				Math.abs((pushed.y - pushed.h / 2) - (pusher.y + pusher.h / 2))];
+		var smallest = [];
+		var smallNum = Infinity;
+		for (var i = 0; i < 4; i++) {
+			if (distances[i] < smallNum) {
+				smallNum = distances[i];
+				smallest = [];
+				smallest.push(i);
+			} else if (distances[i] == smallNum) {
+				smallest.push(i);
+			}
+		}
+		if (smallest.includes(0)) {
+			pushed.x -= distances[0];
+		} else if (smallest.includes(1)) {
+			pushed.x += distances[1];
+		}
+		if (smallest.includes(2)) {
+			pushed.y -= distances[2];
+		} else if (smallest.includes(3)) {
+			pushed.y += distances[3];
+		}
+	}
+}
 
-///////////////////
+//////////////////
 // BASE CLASSES //
-///////////////////
+//////////////////
 class Positional { 
 	/** A class describing anything with x and y co-ords **/
 	constructor(x, y) {
@@ -130,8 +161,7 @@ class Rectangle extends Positional { //the base rectangle
 	update(){
 
 	}
-	
-	render() {
+	render() {	
 		ctx.fillStyle = this.color;
 		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
 	}
@@ -376,11 +406,11 @@ Keyboard = function() {
 	var keys = [];
 	window.addEventListener("keyup", keyUp);
 	function keyUp(e) {
-		keys[e.keyCode] = true;
+		keys[e.keyCode] = false;
 	}
 	window.addEventListener("keydown", keyDown);
 	function keyDown(e) {
-		keys[e.keyCode] = false;
+		keys[e.keyCode] = true;
 	}
 	return keys;
 }
