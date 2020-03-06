@@ -42,9 +42,13 @@ class SceneManager {
 
 class Scene {
 	/** Class that gives the functions needed to define a scene. **/
-	constructor(n) {
+	constructor(n, bSrc) {
 		this.name = n;
 		this.objs = [];
+		if (bSrc) {
+			this.background = new Image();
+			this.background.src = bSrc;
+		}
 		//length and width of the screen at its last known load
 		this.lastW = innerWidth;
 		this.lastH = innerHeight;
@@ -92,6 +96,9 @@ class Scene {
 	render() {
 		ctx.fillStyle = "#FFFFFF";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		if (this.background) {
+			ctx.drawImage(this.background, 0, 0, innerWidth, innerHeight);
+		}
 		for (var x = 0; x < this.objs.length; x++) {
 			var t = this.objs[x];
 			if (t.render) { t.render(); }
@@ -105,7 +112,7 @@ class Scene {
 class StartScene extends Scene {
 	/** Scene for when the player first opens the game. **/
 	constructor() {
-		super("start");
+		super("start", "Pictures/MainMenu.png"); //I created a folder named "Pictures" so there would be less clutter
 		//constructors in subclasses of scenes declares everything they need
 		//start operations
 		this.startButton = new SceneChangeButton(innerWidth/2, innerHeight/2, innerWidth/6, innerHeight/6,
@@ -141,6 +148,10 @@ class ControlChangeScene extends Scene {
 								"Back", "options");
 		this.objs.push(this.backButton);
 	}
+	load() {
+		super.load();
+		
+	}
 }
 
 class FightScene extends Scene {
@@ -150,7 +161,7 @@ class FightScene extends Scene {
 		this.floor = new Rectangle(innerWidth/2, innerHeight - 50, innerWidth, 100, "#9278F1");
 		this.chars = [];
 		this.chars[0] = new Character(50, innerHeight - 250, innerWidth/20, innerHeight/3, "#555555", 65, 68, 87);
-		this.chars[1] = new Character(2090, innerHeight - 250, innerWidth/20, innerHeight/3, "#333333", 37, 39, 38);
+		this.chars[1] = new Character(innerWidth - 50, innerHeight - 250, innerWidth/20, innerHeight/3, "#333333", 37, 39, 38);
 		this.matchTimer = new MatchTimer(90000);
 		
 		this.objs.push(this.floor);
@@ -182,7 +193,6 @@ class FightScene extends Scene {
 					}
 				}
 			}
-		
 		}
 	}
 }
