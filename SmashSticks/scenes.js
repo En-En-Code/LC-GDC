@@ -112,35 +112,15 @@ class Scene {
 class StartScene extends Scene {
 	/** Scene for when the player first opens the game. **/
 	constructor() {
-		super("start");
+		super("start", "Pictures/MainMenu.png"); //I created a folder named "Pictures" so there would be less clutter
 		//constructors in subclasses of scenes declares everything they need
 		//start operations
-		this.background = new Image();
-		this.background.src = "Test.png";
-		
-		
-		this.startButton = new SceneChangeButton(innerWidth/2 - 9, innerHeight/2 - 8, innerWidth/6 + 62, innerHeight/6 + 11,
+		this.startButton = new SceneChangeButton(innerWidth/2, innerHeight/2, innerWidth/6, innerHeight/6,
 								"START!", "ingame");
-		this.optionsButton = new SceneChangeButton(innerWidth/2 - 8, innerHeight*17/20 - 25, innerWidth/6 + 62, innerHeight/6 + 11, 
+		this.optionsButton = new SceneChangeButton(innerWidth/2, innerHeight*17/20, innerWidth/6, innerHeight/6, 
 								"Options", "options");
 		this.objs.push(this.startButton);
 		this.objs.push(this.optionsButton);
-	}
-	
-	render()
-	{
-		ctx.fillStyle = "#FFFFFF";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.drawImage(this.background, 0, 0, innerWidth, innerHeight);
-		for (var x = 0; x < this.objs.length; x++) {
-			var t = this.objs[x];
-			if (t.render) { t.render(); }
-			if (Array.isArray(t)) {
-				for (var i of t) { if (i.render) { i.render(); } }
-			}
-		}
-		
-		
 	}
 }
 
@@ -203,14 +183,9 @@ class FightScene extends Scene {
 				rectRectEject(f, this.floor);
 				f.gVel = 0;
 			}
-			for(var x of this.chars)
-			{
-				if(!(isEqual(x, f)))
-				{
-					if(rectRectCollision(x, f))
-					{
-						rectRectEject(x , f);
-					}
+			for (var x of this.chars) {
+				if (!isEqual(x, f)) {
+					rectRectEject(x , f, [true, true, false, false]);
 				}
 			}
 		}
