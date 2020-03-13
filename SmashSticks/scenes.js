@@ -162,11 +162,15 @@ class FightScene extends Scene {
 		this.chars = [];
 		this.chars[0] = new Character(50, innerHeight - 250, innerWidth/20, innerHeight/3, "#555555", 65, 68, 87);
 		this.chars[1] = new Character(innerWidth - 50, innerHeight - 250, innerWidth/20, innerHeight/3, "#333333", 37, 39, 38);
+		this.wall = new Rectangle(0 ,innerHeight - 250, 10, 1920, "#ffffff00") //#ffffff00 << transparent color
+		this.wall2 = new Rectangle(innerWidth, innerHeight - 250, 10, 1920, "#ffffff00")
 		this.matchTimer = new MatchTimer(90000);
 		
 		this.objs.push(this.floor);
 		this.objs.push(this.chars);
 		this.objs.push(this.matchTimer);
+		this.objs.push(this.wall);      //need to remove "wall climbing"
+		this.objs.push(this.wall2);    //may be more efficent way to do this using a walls array
 	}
 	update() {
 		super.update();
@@ -187,6 +191,32 @@ class FightScene extends Scene {
 				if (!isEqual(x, f)) {
 					rectRectEject(x , f, [true, true, false, false]);
 				}
+			}
+		}
+		for( var w of this.chars) {
+			w.canMove = this.matchTimer.matchGoing;
+			w.update();
+			
+			if(!rectRectCollision(w, this.wall)) {
+				w.y += w.gVel;
+				w.gVel += w.G_ACCEL;
+			}
+			if(rectRectCollision(w, this.wall)) {
+				rectRectEject(w, this.wall);
+				w.gVel = 0;
+			}
+		}
+		
+		for( var w2 of this.chars) {
+			w2.canMove = this.matchTimer.matchGoing;
+			w2.update();
+			if(!rectRectCollision(w2, this.wall2)) {
+				w2.y += w2.gVel;
+				w2.gVel += w.G_ACCEL;
+			}
+			if(rectRectCollision(w2, this.wall2)) {
+				rectRectEject(w2, this.wall2);
+				w2.gVel = 0;
 			}
 		}
 	}
