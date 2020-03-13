@@ -95,23 +95,27 @@ function segmentSegmentCollision(l1, l2) {
 	}
 	return false;
 }
-function rectRectEject(pushed, pusher) {
-	// Handles collision between two rectangles (one mobile and one non-mobile).
+function rectRectEject(pushed, pusher, unchecked) {
+	/// Handles collision between two rectangles.
+	// unchecked is an optional Boolean array, size 4, which allows for directions
+	// that the function will not push the player in (False in unchecked)
 	if (rectRectCollision(pushed, pusher)) {
 		//0 == +x, 1 == -x, 2 == +y, 3 == -y;
 		var distances = [Math.abs((pusher.x - pusher.w / 2) - (pushed.x + pushed.w / 2)),
-				Math.abs((pushed.x - pushed.w / 2) - (pusher.x + pusher.w / 2)),
-				Math.abs((pusher.y - pusher.h / 2) - (pushed.y + pushed.h / 2)),
-				Math.abs((pushed.y - pushed.h / 2) - (pusher.y + pusher.h / 2))];
+						Math.abs((pushed.x - pushed.w / 2) - (pusher.x + pusher.w / 2)),
+						Math.abs((pusher.y - pusher.h / 2) - (pushed.y + pushed.h / 2)),
+						Math.abs((pushed.y - pushed.h / 2) - (pusher.y + pusher.h / 2))];
 		var smallest = [];
 		var smallNum = Infinity;
 		for (var i = 0; i < 4; i++) {
-			if (distances[i] < smallNum) {
-				smallNum = distances[i];
-				smallest = [];
-				smallest.push(i);
-			} else if (distances[i] == smallNum) {
-				smallest.push(i);
+			if (unchecked == undefined || unchecked[i]) {
+				if (distances[i] < smallNum) {
+					smallNum = distances[i];
+					smallest = [];
+					smallest.push(i);
+				} else if (distances[i] == smallNum) {
+					smallest.push(i);
+				}
 			}
 		}
 		if (smallest.includes(0)) {
