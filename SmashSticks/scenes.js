@@ -115,9 +115,9 @@ class StartScene extends Scene {
 		super("start", "Pictures/MainMenu.png"); //I created a folder named "Pictures" so there would be less clutter
 		//constructors in subclasses of scenes declares everything they need
 		//start operations
-		this.startButton = new SceneChangeButton(innerWidth/2, innerHeight/2, innerWidth/6, innerHeight/6,
+		this.startButton = new SceneChangeButton(innerWidth/2 - 9, innerHeight/2 - 8, innerWidth/6 + 62, innerHeight/6 + 11,
 								"START!", "ingame");
-		this.optionsButton = new SceneChangeButton(innerWidth/2, innerHeight*17/20, innerWidth/6, innerHeight/6, 
+		this.optionsButton = new SceneChangeButton(innerWidth/2 - 8, innerHeight*17/20 - 25, innerWidth/6 + 62, innerHeight/6 + 11, 
 								"Options", "options");
 		this.objs.push(this.startButton);
 		this.objs.push(this.optionsButton);
