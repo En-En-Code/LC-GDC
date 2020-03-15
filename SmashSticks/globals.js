@@ -33,7 +33,6 @@ function collisionDirect(t1, t2) {
 		}
 	}
 }
-
 function rectRectCollision(b1, b2) {
 	///@return True if the two rectangles, b1 & b2, are overlapping, False otherwise.
 	return 	mid2Edge(b1.x, b1.w) <= mid2Edge(b2.x, -b2.w) &&
@@ -161,9 +160,6 @@ class Rectangle extends Positional { //the base rectangle
 		this.right = false;
 		this.up = false;
 		this.down = false;
-	}
-	update(){
-
 	}
 	render() {	
 		ctx.fillStyle = this.color;
@@ -488,4 +484,18 @@ function isEqual(a, b) {
         }
     }
     return true;
+}
+function updateNestedArrays(a, funct, parameters) {
+	/// Allows an in-class function to be applied on every object in an array
+	/// a is the array to loop through, funct is a string, and parameters is an array
+	/// If an array is found, it will loop through that as well, and so on...
+	/// well, at least until a stack overflow occurs ;)
+	for (var x of a) {
+		if (Array.isArray(x)) {
+			updateNestedArrays(x, funct, parameters); //RECURSION OwO
+		}
+		else if (x[funct]) {
+			x[funct].apply(x, parameters);
+		}
+	}
 }
