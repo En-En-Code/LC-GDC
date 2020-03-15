@@ -55,43 +55,25 @@ class Scene {
 	}
 	
 	load() {
-		for (var x = 0; x < this.objs.length; x++) {
-			var t = this.objs[x];
-			if (t.updateXScaling) {
-				t.updateXScaling(this.lastW, innerWidth);
-			}
-			if (t.updateYScaling) {
-				t.updateYScaling(this.lastH, innerHeight);
-			}
-			if (t.load) { t.load(); }
-		}
+		updateNestedArrays(this.objs, "updateXScaling", [this.lastW, innerWidth]);
+		updateNestedArrays(this.objs, "updateYScaling", [this.lastH, innerHeight]);
+		updateNestedArrays(this.objs, "load");
 	}
 	unload() { 	
-		for (var x = 0; x < this.objs.length; x++) {
-			var t = this.objs[x];
-			if (t.unload) { t.unload(); }
-		}
+		updateNestedArrays(this.objs, "unload");
 		this.lastW = innerWidth;
 		this.lastH = innerHeight;
 	}
 	update() {
-		for (var x = 0; x < this.objs.length; x++) {
-			var t = this.objs[x];
-			if (t.update) { t.update(); }
-		}
+		updateNestedArrays(this.objs, "update");
 		this.render();
 	}
 	updateXScaling(o, n) {
-		for (var x = 0; x < this.objs.length; x++) {
-			var t = this.objs[x];
-			if (t.updateXScaling) { t.updateXScaling(o, n); }
-		}
+		updateNestedArrays(this.objs, "updateXScaling", [o, n]);
+		
 	}
 	updateYScaling(o, n) {
-		for (var x = 0; x < this.objs.length; x++) {
-			var t = this.objs[x];
-			if (t.updateYScaling) { t.updateYScaling(o, n); }
-		}	
+		updateNestedArrays(this.objs, "updateYScaling", [o, n]);	
 	}
 	render() {
 		ctx.fillStyle = "#FFFFFF";
@@ -99,13 +81,7 @@ class Scene {
 		if (this.background) {
 			ctx.drawImage(this.background, 0, 0, innerWidth, innerHeight);
 		}
-		for (var x = 0; x < this.objs.length; x++) {
-			var t = this.objs[x];
-			if (t.render) { t.render(); }
-			if (Array.isArray(t)) {
-				for (var i of t) { if (i.render) { i.render(); } }
-			}
-		}
+		updateNestedArrays(this.objs, "render");
 	}
 }
 
@@ -117,7 +93,7 @@ class StartScene extends Scene {
 		//start operations
 		this.startButton = new SceneChangeButton(innerWidth/2 - 9, innerHeight/2 - 8, innerWidth/6 + 62, innerHeight/6 + 11,
 								"START!", "ingame");
-		this.optionsButton = new SceneChangeButton(innerWidth/2 - 8, innerHeight*17/20 - 25, innerWidth/6 + 62, innerHeight/6 + 11, 
+		this.optionsButton = new SceneChangeButton(innerWidth/2 - 8, innerHeight*17/20 - 25, innerWidth/6 + 62, innerHeight/6 + 11,
 								"Options", "options");
 		this.objs.push(this.startButton);
 		this.objs.push(this.optionsButton);
@@ -160,8 +136,8 @@ class FightScene extends Scene {
 		super("ingame");
 		this.floor = new Rectangle(innerWidth/2, innerHeight - 50, innerWidth, 100, "#9278F1");
 		this.chars = [];
-		this.chars[0] = new Character(50, innerHeight - 250, innerWidth/20, innerHeight/3, "#555555", 65, 68, 87);
-		this.chars[1] = new Character(innerWidth - 50, innerHeight - 250, innerWidth/20, innerHeight/3, "#333333", 37, 39, 38);
+		this.chars[0] = new Character(null, innerHeight*3/4, innerWidth/18, innerHeight/3, "#555555", 65, 68, 87);
+		this.chars[1] = new Character(null, innerHeight*3/4, innerWidth/18, innerHeight/3, "#333333", 37, 39, 38);
 		this.wall = new Rectangle(0 ,innerHeight - 250, 10, 1920, "#ffffff00") //#ffffff00 << transparent color
 		this.wall2 = new Rectangle(innerWidth, innerHeight - 250, 10, 1920, "#ffffff00")
 		this.matchTimer = new MatchTimer(90000);
@@ -171,6 +147,15 @@ class FightScene extends Scene {
 		this.objs.push(this.matchTimer);
 		this.objs.push(this.wall);      //need to remove "wall climbing"
 		this.objs.push(this.wall2);    //may be more efficent way to do this using a walls array
+	}
+	load() {
+		super.load();
+		//spread out the players so that there is an equal amount of space between them
+		var divisions = this.chars.length - 1;
+		for (var z = 0; z <= divisions; z++) {
+			this.chars[z].x = (1+(z*30/divisions))*innerWidth/32;
+			this.chars[z].y = innerHeight*3/4;
+		}
 	}
 	update() {
 		super.update();
@@ -196,7 +181,7 @@ class FightScene extends Scene {
 		for( var w of this.chars) {
 			w.canMove = this.matchTimer.matchGoing;
 			w.update();
-			
+
 			if(!rectRectCollision(w, this.wall)) {
 				w.y += w.gVel;
 				w.gVel += w.G_ACCEL;
@@ -206,7 +191,7 @@ class FightScene extends Scene {
 				w.gVel = 0;
 			}
 		}
-		
+
 		for( var w2 of this.chars) {
 			w2.canMove = this.matchTimer.matchGoing;
 			w2.update();
