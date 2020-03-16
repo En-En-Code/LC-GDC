@@ -332,11 +332,10 @@ GamepadManager = function() {
 
 var cursorArray = [];
 var pointerColorArray = ["red", "blue", "lime", "yellow"];
-class Cursor {
+class Cursor extends Positional {
 	/** A pointer for selection (either for mouse or gamepad). **/
 	constructor() {
-		this.x = null;
-		this.y = null;
+		super(null, null);
 		this.w = 10;
 		this.h = 10;
 		this.visible = true;
