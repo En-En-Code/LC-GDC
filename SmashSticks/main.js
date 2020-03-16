@@ -21,30 +21,23 @@ window.onload = function() {
 	canvas = document.getElementById("canvas");	
 	ctx = canvas.getContext("2d");
 	ctx.imageSmoothingEnabled = false;
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
 	mouse = new Mouse();
 	kboard = new Keyboard();
 	document.body.style.cursor = 'none';
 	main();
 }
+window.onresize = function() {
+	sM.updateXScaling(canvas.width, innerWidth);
+	sM.updateYScaling(canvas.height, innerHeight);
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+}
 
 function main() {
-	//These values are now updated every frame, which accommodates changing
-	//the screen size. The SceneManager updates everything inside it in turn.
-	if (canvas.width != innerWidth) {
-		if (canvas.width) {
-			sM.updateXScaling(canvas.width, innerWidth);
-		}
-		canvas.width = innerWidth;
-	}
-	if (canvas.height != innerHeight) {
-		if (canvas.height) {
-			sM.updateYScaling(canvas.height, innerHeight);
-		}
-		canvas.height = innerHeight;
-	}
-	
 	sM.update();
-	
+
 	if (showFPS.value) {
 		//determines the running time in between frames to obtain a frame rate
 		///could be better by not checking every frame (e.g. check 1 in 4 frames)
@@ -61,7 +54,7 @@ function main() {
 			showFPS.fps /= 60;
 		}
 		formatText(15, "Courier", "#000000", "center", "middle");
-		ctx.fillText(Math.round(showFPS.fps) + " fps", innerWidth/24, innerHeight/24);
+		ctx.fillText(Math.round(showFPS.fps) + " fps", innerWidth/24*devicePixelRatio, innerHeight/24*devicePixelRatio);
 	}
 	
 	mouse.update();
