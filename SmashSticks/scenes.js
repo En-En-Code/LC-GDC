@@ -138,15 +138,15 @@ class FightScene extends Scene {
 		this.chars = [];
 		this.chars[0] = new Character(null, innerHeight*3/4, innerWidth/18, innerHeight/3, "#555555", 65, 68, 87);
 		this.chars[1] = new Character(null, innerHeight*3/4, innerWidth/18, innerHeight/3, "#333333", 37, 39, 38);
-		this.wall = new Rectangle(0 ,innerHeight - 250, 10, 1920, "#ffffff00") //#ffffff00 << transparent color
-		this.wall2 = new Rectangle(innerWidth, innerHeight - 250, 10, 1920, "#ffffff00")
+		this.walls = [];
+		this.walls[0] = new Rectangle(0 ,innerHeight - 250, 10, 1920, "#ffffff00") //#ffffff00 << transparent color
+		this.walls[1] = new Rectangle(innerWidth, innerHeight - 250, 10, 1920, "#ffffff00")
 		this.matchTimer = new MatchTimer(90000);
 		
 		this.objs.push(this.floor);
 		this.objs.push(this.chars);
+		this.objs.push(this.walls);
 		this.objs.push(this.matchTimer);
-		this.objs.push(this.wall);      //need to remove "wall climbing"
-		this.objs.push(this.wall2);    //may be more efficent way to do this using a walls array
 	}
 	load() {
 		super.load();
@@ -162,7 +162,6 @@ class FightScene extends Scene {
 		for (var f of this.chars) {
 			//if the timer is true, the players can move, otherwise they can't move
 			f.canMove = this.matchTimer.matchGoing;
-			f.update();
 			//i don't think the best place for gravity is here, but it will do for now
 			if (!rectRectCollision(f, this.floor)) { 
 				f.y += f.gVel;
@@ -177,31 +176,8 @@ class FightScene extends Scene {
 					rectRectEject(x , f, [true, true, false, false]);
 				}
 			}
-		}
-		for( var w of this.chars) {
-			w.canMove = this.matchTimer.matchGoing;
-			w.update();
-
-			if(!rectRectCollision(w, this.wall)) {
-				w.y += w.gVel;
-				w.gVel += w.G_ACCEL;
-			}
-			if(rectRectCollision(w, this.wall)) {
-				rectRectEject(w, this.wall);
-				w.gVel = 0;
-			}
-		}
-
-		for( var w2 of this.chars) {
-			w2.canMove = this.matchTimer.matchGoing;
-			w2.update();
-			if(!rectRectCollision(w2, this.wall2)) {
-				w2.y += w2.gVel;
-				w2.gVel += w.G_ACCEL;
-			}
-			if(rectRectCollision(w2, this.wall2)) {
-				rectRectEject(w2, this.wall2);
-				w2.gVel = 0;
+			for (var w of this.walls) {
+				rectRectEject(f, w);
 			}
 		}
 	}
@@ -241,7 +217,7 @@ class MatchTimer extends Positional {
 			formatText(this.remainTime - Math.trunc(this.remainTime/1000)*1000, "Arial", "#CC0000", "center", "middle");
 		} else {
 			this.y = innerHeight/16;
-			formatText(25, "Arial", "#000000", "center", "middle");
+			formatText(25/devicePixelRatio, "Arial", "#000000", "center", "middle");
 		}
 		ctx.fillText(Math.ceil(this.remainTime/1000), this.x, this.y);
 	}
