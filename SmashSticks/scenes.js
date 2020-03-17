@@ -139,8 +139,8 @@ class FightScene extends Scene {
 		this.chars[0] = new Character(null, innerHeight*3/4, innerWidth/18, innerHeight/3, "#555555", 65, 68, 87);
 		this.chars[1] = new Character(null, innerHeight*3/4, innerWidth/18, innerHeight/3, "#333333", 37, 39, 38);
 		this.walls = [];
-		this.walls[0] = new Rectangle(0 ,innerHeight - 250, 10, 1920, "#ffffff00") //#ffffff00 << transparent color
-		this.walls[1] = new Rectangle(innerWidth, innerHeight - 250, 10, 1920, "#ffffff00")
+		this.walls[0] = new Rectangle(-50, innerHeight - 250, 100, 1920, "#ffffff00") //#ffffff00 << transparent color
+		this.walls[1] = new Rectangle(innerWidth+50, innerHeight - 250, 100, 1920, "#ffffff00")
 		this.matchTimer = new MatchTimer(90000);
 		
 		this.objs.push(this.floor);
@@ -173,7 +173,7 @@ class FightScene extends Scene {
 			}
 			for (var x of this.chars) {
 				if (!isEqual(x, f)) {
-					rectRectEject(x , f, [true, true, false, false]);
+					rectRectEject(x, f, [true, true, false, false], true);
 				}
 			}
 			for (var w of this.walls) {
