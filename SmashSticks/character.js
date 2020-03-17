@@ -34,4 +34,9 @@ class Character extends Rectangle { //will probably just be a collection of anim
 			this.aState = "WAIT"
 		}
 	}
+	updateYScaling(o, n) {
+		super.updateYScaling(o, n);
+		this.gVel *= n/o;
+		this.G_ACCEL *= n/o;
+	}
 }
