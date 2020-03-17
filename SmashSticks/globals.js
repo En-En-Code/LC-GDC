@@ -94,10 +94,11 @@ function segmentSegmentCollision(l1, l2) {
 	}
 	return false;
 }
-function rectRectEject(pushed, pusher, unchecked) {
+function rectRectEject(pushed, pusher, unchecked, oppPush) {
 	/// Handles collision between two rectangles.
 	// unchecked is an optional Boolean array, size 4, which allows for directions
 	// that the function will not push the player in (False in unchecked)
+	// oppPush determines if the pusher should also be pushed half the separation distance
 	if (rectRectCollision(pushed, pusher)) {
 		//0 == +x, 1 == -x, 2 == +y, 3 == -y;
 		var distances = [Math.abs((pusher.x - pusher.w / 2) - (pushed.x + pushed.w / 2)),
@@ -118,14 +119,34 @@ function rectRectEject(pushed, pusher, unchecked) {
 			}
 		}
 		if (smallest.includes(0)) {
-			pushed.x -= distances[0];
+			if (oppPush) {
+				pushed.x -= distances[0]/2;
+				pusher.x += distances[0]/2;
+			} else {
+				pushed.x -= distances[0];
+			}
 		} else if (smallest.includes(1)) {
-			pushed.x += distances[1];
+			if (oppPush) {
+				pushed.x += distances[1]/2;
+				pusher.x -= distances[1]/2;
+			} else {
+				pushed.x += distances[1];
+			}
 		}
 		if (smallest.includes(2)) {
-			pushed.y -= distances[2];
+			if (oppPush) {
+				pushed.y -= distances[2]/2;
+				pusher.y += distances[2]/2;
+			} else {
+				pushed.y -= distances[2];
+			}
 		} else if (smallest.includes(3)) {
-			pushed.y += distances[3];
+			if (oppPush) {
+				pushed.y += distances[3]/2;
+				pusher.y -= distances[3]/2;
+			} else {
+				pushed.y += distances[3];
+			}
 		}
 	}
 }
