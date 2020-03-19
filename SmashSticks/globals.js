@@ -395,7 +395,7 @@ class Cursor extends Positional {
 		this.update();
 	}
 	checkStatus(b) {
-		//checks b and this.buffer to determine how to behave
+		//checks b (the button state) and this.buffer to determine how to behave
 		if (b) {
 			if (this.buffer) {
 				this.selecting = false;
@@ -404,6 +404,7 @@ class Cursor extends Positional {
 				this.buffer = true;
 			}
 		} else {
+			this.selecting = false;
 			this.buffer = false;
 		}
 	}
