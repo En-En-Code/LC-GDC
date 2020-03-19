@@ -91,9 +91,9 @@ class StartScene extends Scene {
 		super("start", "Pictures/MainMenu.png"); //I created a folder named "Pictures" so there would be less clutter
 		//constructors in subclasses of scenes declares everything they need
 		//start operations
-		this.startButton = new SceneChangeButton(innerWidth/2 - 9, innerHeight/2 - 8, innerWidth/6 + 62, innerHeight/6 + 11,
+		this.startButton = new SceneChangeButton(innerWidth/2, innerHeight*13/20, innerWidth/6, innerHeight/6,
 								"START!", "ingame");
-		this.optionsButton = new SceneChangeButton(innerWidth/2 - 8, innerHeight*17/20 - 25, innerWidth/6 + 62, innerHeight/6 + 11,
+		this.optionsButton = new SceneChangeButton(innerWidth/2, innerHeight*17/20, innerWidth/6, innerHeight/6, 
 								"Options", "options");
 		this.objs.push(this.startButton);
 		this.objs.push(this.optionsButton);
@@ -104,9 +104,9 @@ class OptionsScene extends Scene {
 	/** Scene for changing options (including dev options) **/
 	constructor() {
 		super("options");
-		this.controlsButton = new SceneChangeButton(innerWidth/2, innerHeight/2, innerWidth/6, innerHeight/6,
+		this.controlsButton = new SceneChangeButton(innerWidth/2, innerHeight*13/20, innerWidth/6, innerHeight/6,
 								"Controls", "controls");
-		this.fpsButton = new BooleanButton(innerWidth/3, innerHeight/2, innerWidth/6, innerHeight/6,
+		this.fpsButton = new BooleanButton(innerWidth*3/10, innerHeight*13/20, innerWidth/6, innerHeight/6,
 								"Show FPS", showFPS);
 		this.backButton = new SceneChangeButton(innerWidth/2, innerHeight*17/20, innerWidth/6, innerHeight/6, 
 								"Back", "start");
@@ -162,11 +162,6 @@ class FightScene extends Scene {
 		for (var f of this.chars) {
 			//if the timer is true, the players can move, otherwise they can't move
 			f.canMove = this.matchTimer.matchGoing;
-			//i don't think the best place for gravity is here, but it will do for now
-			if (!rectRectCollision(f, this.floor)) { 
-				f.y += f.gVel;
-				f.gVel += f.G_ACCEL;
-			} 
 			if (rectRectCollision(f, this.floor)) {
 				rectRectEject(f, this.floor);
 				f.gVel = 0;
@@ -256,6 +251,9 @@ class Button extends Rectangle {
 	}
 	render() {
 		super.render();
+		ctx.strokeStyle = "#000000";
+		ctx.lineWidth = 6;
+		ctx.strokeRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
 		formatText(this.w / this.txt.length, "Comic Sans MS", "#000000", "center", "middle");
 		ctx.fillText(this.txt, this.x, this.y, this.w);
 	}
@@ -287,8 +285,11 @@ class BooleanButton extends Button {
 			ctx.fillStyle = "green";
 		} else {
 			ctx.fillStyle = "darkred";
-		}	
+		}
 		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
+		ctx.strokeStyle = "#000000";
+		ctx.lineWidth = 6;
+		ctx.strokeRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
 		formatText(this.w / this.txt.length, "Comic Sans MS", "#000000", "center", "middle");
 		ctx.fillText(this.txt, this.x, this.y - this.h/8, this.w);
 		ctx.fillText(this.bool.value.toString(), this.x, this.y + this.h/8, this.w);
