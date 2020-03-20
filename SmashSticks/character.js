@@ -63,7 +63,7 @@ class Character extends Rectangle {
 		}
 		this._x = nX;
 	}
-	get y() {return this._y; }
+	get y() { return this._y; }
 	set y(nY) {
 		if (this.nodes) {
 			for (var n of this.nodes) {
@@ -72,8 +72,21 @@ class Character extends Rectangle {
 		}
 		this._y = nY;
 	}
+	updateXScaling(o, n) {
+		for (var v of this.nodes) {
+			v.x *= n/o;
+		}
+		//I use this to bypass the setter because that will change the nodes again
+		//This probably isn't in line with good programming practice, but whatevs
+		this._x *= n/o;
+		this.w *= n/o;
+	}
 	updateYScaling(o, n) {
-		super.updateYScaling(o, n);
+		for (var v of this.nodes) {
+			v.y *= n/o;
+		}
+		this._y *= n/o;
+		this.h *= n/o;
 		this.gVel *= n/o;
 		this.G_ACCEL *= n/o;
 	}
@@ -99,7 +112,7 @@ class Node extends Positional {
 	render() {
 		//for testing; will probably be removed
 		ctx.strokeStyle = "#dddd00";
-		ctx.lineWidth = 10;
+		ctx.lineWidth = 10/devicePixelRatio;
 		ctx.beginPath();
 		ctx.lineCap = 'round';
 		ctx.moveTo(this.x, this.y);
@@ -114,7 +127,7 @@ class Connector {
 	}
 	render() {
 		ctx.strokeStyle = "#00dddd";
-		ctx.lineWidth = 8;
+		ctx.lineWidth = 8/devicePixelRatio;
 		ctx.beginPath();
 		ctx.lineCap = 'round';
 		ctx.moveTo(this.n1.x, this.n1.y);
