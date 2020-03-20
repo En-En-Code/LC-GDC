@@ -32,6 +32,9 @@ class SceneManager {
 	update() {
 		this.scenes.get(this.currScene).update();
 	}
+	render() {
+		this.scenes.get(this.currScene).render();
+	}
 	updateXScaling(o, n) {
 		this.scenes.get(this.currScene).updateXScaling(o, n);
 	}
@@ -66,7 +69,6 @@ class Scene {
 	}
 	update() {
 		updateNestedArrays(this.objs, "update");
-		this.render();
 	}
 	updateXScaling(o, n) {
 		updateNestedArrays(this.objs, "updateXScaling", [o, n]);
@@ -252,7 +254,7 @@ class Button extends Rectangle {
 	render() {
 		super.render();
 		ctx.strokeStyle = "#000000";
-		ctx.lineWidth = 6;
+		ctx.lineWidth = 6/devicePixelRatio;
 		ctx.strokeRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
 		formatText(this.w / this.txt.length, "Comic Sans MS", "#000000", "center", "middle");
 		ctx.fillText(this.txt, this.x, this.y, this.w);
@@ -288,7 +290,7 @@ class BooleanButton extends Button {
 		}
 		ctx.fillRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
 		ctx.strokeStyle = "#000000";
-		ctx.lineWidth = 6;
+		ctx.lineWidth = 6/devicePixelRatio;
 		ctx.strokeRect(mid2Edge(this.x, this.w), mid2Edge(this.y, this.h), this.w, this.h);
 		formatText(this.w / this.txt.length, "Comic Sans MS", "#000000", "center", "middle");
 		ctx.fillText(this.txt, this.x, this.y - this.h/8, this.w);
