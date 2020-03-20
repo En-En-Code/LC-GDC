@@ -225,7 +225,7 @@ Mouse = function() {
 	mouse.down = false;
 	
 	mouse.update = function() {
-		mouse.cursor.constUpdate(mouse.x, mouse.y, true);
+		mouse.cursor.constUpdate(mouse.x, mouse.y);
 		mouse.cursor.checkStatus(mouse.down);
 	}
 	
@@ -378,10 +378,9 @@ class Cursor extends Positional {
 			this.color = "black";
 		}
 	}
-	constUpdate(x, y, b) {
+	constUpdate(x, y) {
 		this.x = x;
-		this.y = y;
-		if (b) { this.update(); }
+		this.y = y;	
 	}
 	delUpdate(x, y) {
 		if (this.x == null) {this.x = innerWidth;}
@@ -392,7 +391,6 @@ class Cursor extends Positional {
 		else if (this.x > innerWidth) { this.x = innerWidth; }
 		if (this.y < 0) { this.y = 0; }
 		else if (this.y > innerHeight) { this.y = innerHeight; }
-		this.update();
 	}
 	checkStatus(b) {
 		//checks b (the button state) and this.buffer to determine how to behave
@@ -406,11 +404,6 @@ class Cursor extends Positional {
 		} else {
 			this.selecting = false;
 			this.buffer = false;
-		}
-	}
-	update() {
-		if (this.visible) {
-			this.render();
 		}
 	}
 	render() {
