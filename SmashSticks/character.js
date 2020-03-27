@@ -37,7 +37,7 @@ class Character extends Rectangle {
 				this.x -= innerWidth/455;
 			}
 			if(kboard[this.keyJump] && this.aState != "AIR") {
-				this.y -= innerHeight/25;
+				this.y -= innerHeight/30;
 				this.aState = "AIR-H"; //AIR - HOLDING state - when the player is holding the button, they will continue to rise
 			}
 			if(!kboard[this.keyJump] && this.aState == "AIR-H")
